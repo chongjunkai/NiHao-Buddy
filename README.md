@@ -29,7 +29,6 @@ Support multiple users (e.g., siblings)
 
 Be simple, well-structured, and easy to maintain
 
-Hosted on GitHub to showcase as a DSA project
 
 🧩 2. Recommended Technology Stack
 Component	Technology	Purpose
