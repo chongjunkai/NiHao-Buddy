@@ -1,6 +1,7 @@
 # NiHao-Buddy
 A multi-function Chinese learning app for kids
-🌸 NiHao-Buddy – Chinese Master App
+
+NiHao-Buddy – Chinese Master App
 
 A coding project to improve Chinese proficiency.
 
