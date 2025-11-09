@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NiHao-Buddy</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    select {
+      display: block;
+      margin: 0 auto 20px auto;
+      padding: 8px 12px;
+      font-size: 16px;
+    }
+    #words-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+    .word-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 12px 16px;
+      text-align: center;
+      width: 120px;
+      transition: transform 0.2s;
+    }
+    .word-card:hover {
+      transform: translateY(-5px);
+    }
+    .char {
+      font-size: 36px;
+      color: #2c3e50;
+    }
+    .pinyin {
+      font-size: 14px;
+      color: #2980b9;
+    }
+    .meaning {
+      font-size: 14px;
+      color: #27ae60;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>NiHao-Buddy Words</h1>
+
+  <label for="grade-select">Select Grade:</label>
+  <select id="grade-select">
+    <option value="1">Grade 1</option>
+    <option value="2">Grade 2</option>
+    <option value="3">Grade 3</option>
+    <option value="4">Grade 4</option>
+    <option value="5">Grade 5</option>
+    <option value="6">Grade 6</option>
+  </select>
+
+  <div id="words-container"></div>
+
+  <script>
+    // Get query parameter from URL
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    // Elements
+    const gradeSelect = document.getElementById('grade-select');
+    const wordsContainer = document.getElementById('words-container');
+
+    // Load grade from URL or default
+    let grade = getQueryParam('grade') || '1';
+    gradeSelect.value = grade;
+
+    // Fetch and display words
+    function loadWords(grade) {
+      wordsContainer.innerHTML = ''; // Clear previous words
+      fetch(`http://127.0.0.1:5000/api/words?grade=${grade}`)
+        .then(response => response.json())
+        .then(data => {
+          data.forEach(word => {
+            const card = document.createElement('div');
+            card.className = 'word-card';
+            card.innerHTML = `
+              <div class="char">${word.char}</div>
+              <div class="pinyin">${word.pinyin}</div>
+              <div class="meaning">${word.meaning}</div>
+            `;
+            wordsContainer.appendChild(card);
+          });
+        })
+        .catch(err => {
+          console.error("Error fetching words:", err);
+          wordsContainer.innerHTML = '<p style="color:red;">Failed to load words. Make sure backend is running.</p>';
+        });
+    }
+
+    // Initial load
+    loadWords(grade);
+
+    // Change grade dynamically
+    gradeSelect.addEventListener('change', () => {
+      grade = gradeSelect.value;
+      // Update URL without reloading
+      window.history.replaceState({}, '', `?grade=${grade}`);
+      loadWords(grade);
+    });
+  </script>
+
+</body>
+</html>

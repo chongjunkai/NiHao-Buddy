@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS words (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  char TEXT NOT NULL,
+  pinyin TEXT,
+  meaning TEXT,
+  grade TEXT
+);
