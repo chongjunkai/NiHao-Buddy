@@ -17,24 +17,39 @@
 
   <header class="app-header">
     <div class="hero-copy">
-      <p class="eyebrow">Chinese learning companion</p>
+      <p class="eyebrow">Chinese learning game</p>
       <h1>NiHao Buddy</h1>
-      <p class="hero-text">A simple study buddy for practising Chinese words with flashcards, quizzes, rewards, and review.</p>
+      <p class="hero-text">Train Chinese words like a game: collect points, clear quests, beat challenges, and unlock badges.</p>
+      <div class="quest-tags" aria-label="Game features">
+        <span>Daily Quest</span>
+        <span>XP Rewards</span>
+        <span>Word Arena</span>
+      </div>
       <p id="source-status" class="source-status">Loading data source...</p>
+    </div>
+
+    <div class="mascot-card" aria-hidden="true">
+      <div class="mascot-face">
+        <span class="mascot-eye"></span>
+        <span class="mascot-eye"></span>
+        <span class="mascot-mouth"></span>
+      </div>
+      <strong>Buddy Bot</strong>
+      <span>Ready for a word quest?</span>
     </div>
 
     <section class="header-stats" aria-label="Learning progress">
       <div>
         <span id="points">0</span>
-        <small>points</small>
+        <small>XP points</small>
       </div>
       <div>
         <span id="streak">0</span>
-        <small>streak</small>
+        <small>combo streak</small>
       </div>
       <div>
         <span id="mastered-count">0</span>
-        <small>mastered</small>
+        <small>words cleared</small>
       </div>
     </section>
   </header>
@@ -42,8 +57,8 @@
   <main class="app-shell">
     <aside class="sidebar">
       <div class="sidebar-title">
-        <strong>Study Controls</strong>
-        <span>Choose your practice set</span>
+        <strong>Quest Map</strong>
+        <span>Choose your training zone</span>
       </div>
 
       <div class="field-group">
@@ -66,35 +81,35 @@
       </div>
 
       <nav class="tabs" aria-label="App sections">
-        <button class="tab-button active" type="button" data-tab="learn"><span>学</span> Learn</button>
-        <button class="tab-button" type="button" data-tab="quiz"><span>测</span> Quiz</button>
-        <button class="tab-button" type="button" data-tab="review"><span>复</span> Review</button>
-        <button class="tab-button" type="button" data-tab="collection"><span>藏</span> Collection</button>
-        <button class="tab-button" type="button" data-tab="challenge"><span>玩</span> Challenge</button>
-        <button class="tab-button" type="button" data-tab="progress"><span>星</span> Progress</button>
+        <button class="tab-button active" type="button" data-tab="learn"><span>学</span> Word Base</button>
+        <button class="tab-button" type="button" data-tab="quiz"><span>测</span> Quiz Arena</button>
+        <button class="tab-button" type="button" data-tab="review"><span>复</span> Review Quest</button>
+        <button class="tab-button" type="button" data-tab="collection"><span>藏</span> Backpack</button>
+        <button class="tab-button" type="button" data-tab="challenge"><span>玩</span> Speed Run</button>
+        <button class="tab-button" type="button" data-tab="progress"><span>星</span> Badges</button>
       </nav>
     </aside>
 
     <section class="content">
       <section class="mission-strip" aria-label="Learning tools">
         <article>
-          <strong>Flashcards</strong>
-          <span>Read, listen, save, and mark words you know.</span>
+          <strong>Mission 1</strong>
+          <span>Flip through word cards and collect useful phrases.</span>
         </article>
         <article>
-          <strong>Smart Review</strong>
-          <span>Mistakes and saved words become practice targets.</span>
+          <strong>Mission 2</strong>
+          <span>Fix mistakes so weak words come back for review.</span>
         </article>
         <article>
-          <strong>Rewards</strong>
-          <span>Points, streaks, badges, and a speed challenge.</span>
+          <strong>Mission 3</strong>
+          <span>Build a streak, win badges, and try speed mode.</span>
         </article>
       </section>
 
       <section class="tab-panel active" id="learn-panel">
         <div class="section-title">
           <div>
-            <h2>Flashcards</h2>
+            <h2>Word Base</h2>
             <p id="word-count">Loading words...</p>
           </div>
           <button id="shuffle-button" class="secondary-button" type="button">Shuffle</button>
