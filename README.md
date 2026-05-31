@@ -80,7 +80,7 @@ The current prototype includes:
 - A personal vocabulary collection for saving useful words
 - Recommended revision based on saved words and quiz mistakes
 - A speed challenge mini-game for quick vocabulary practice
-- A clean local web app interface designed to feel more engaging for students
+- A colourful gamified web app interface with quest-style navigation, XP progress cards, badges, and a Buddy Bot mascot
 
 ![NiHao Buddy app screenshot](assets/screenshots/nihao-buddy-flashcards.jpg)
 
