@@ -5,3 +5,6 @@ CREATE TABLE IF NOT EXISTS words (
   meaning TEXT,
   grade TEXT
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_words_unique
+ON words (char, pinyin, meaning, grade);

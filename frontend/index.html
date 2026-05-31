@@ -3,187 +3,165 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NiHao-Buddy</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f9f9f9;
-    }
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-    select {
-      display: block;
-      margin: 0 auto 20px auto;
-      padding: 8px 12px;
-      font-size: 16px;
-    }
-    #words-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .word-card {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 12px 16px;
-      text-align: center;
-      width: 120px;
-      transition: transform 0.2s;
-    }
-    .word-card:hover {
-      transform: translateY(-5px);
-    }
-    .char {
-      font-size: 36px;
-      color: #2c3e50;
-    }
-    .pinyin {
-      font-size: 14px;
-      color: #2980b9;
-    }
-    .meaning {
-      font-size: 14px;
-      color: #27ae60;
-    }
-    #rewards-section,
-    #quiz-section {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin: 24px auto;
-      max-width: 560px;
-      padding: 20px;
-      text-align: center;
-    }
-    #badges {
-      display: inline-block;
-      margin: 0;
-      padding-left: 20px;
-      text-align: left;
-    }
-    #quiz-options {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 12px;
-    }
-    #quiz-options button,
-    #rewards-section button {
-      border: 0;
-      border-radius: 6px;
-      background: #2980b9;
-      color: #fff;
-      cursor: pointer;
-      font-size: 15px;
-      padding: 9px 14px;
-    }
-    #quiz-options button:hover,
-    #rewards-section button:hover {
-      background: #1f6390;
-    }
-    #quiz-feedback {
-      color: #2c3e50;
-      font-weight: bold;
-      min-height: 20px;
-    }
-  </style>
+  <title>NiHao Buddy</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Chinese learning companion</p>
+      <h1>NiHao Buddy</h1>
+      <p id="source-status" class="source-status">Loading data source...</p>
+    </div>
 
-  <h1>NiHao-Buddy Words</h1>
+    <section class="header-stats" aria-label="Learning progress">
+      <div>
+        <span id="points">0</span>
+        <small>points</small>
+      </div>
+      <div>
+        <span id="streak">0</span>
+        <small>streak</small>
+      </div>
+      <div>
+        <span id="mastered-count">0</span>
+        <small>mastered</small>
+      </div>
+    </section>
+  </header>
 
-  <label for="grade-select">Select Grade:</label>
-  <select id="grade-select">
-    <option value="1">Grade 1</option>
-    <option value="2">Grade 2</option>
-    <option value="3">Grade 3</option>
-    <option value="4">Grade 4</option>
-    <option value="5">Grade 5</option>
-    <option value="6">Grade 6</option>
-  </select>
+  <main class="app-shell">
+    <aside class="sidebar">
+      <label for="grade-select">Level</label>
+      <select id="grade-select">
+        <option value="1">P1</option>
+      </select>
 
-  <div id="words-container"></div>
+      <label for="lesson-filter">Lesson</label>
+      <select id="lesson-filter">
+        <option value="all">All lessons</option>
+      </select>
 
-  <section id="rewards-section">
-    <h2>🎮 Rewards</h2>
-    <p>Points: <span id="points">0</span></p>
-    <p>Learning Streak: <span id="streak">0</span></p>
+      <label for="search-input">Search</label>
+      <input id="search-input" type="search" placeholder="Character or lesson">
 
-    <h3>Badges</h3>
-    <ul id="badges">
-      <li>No badges yet. Keep learning!</li>
-    </ul>
+      <nav class="tabs" aria-label="App sections">
+        <button class="tab-button active" type="button" data-tab="learn">Learn</button>
+        <button class="tab-button" type="button" data-tab="quiz">Quiz</button>
+        <button class="tab-button" type="button" data-tab="review">Review</button>
+        <button class="tab-button" type="button" data-tab="collection">Collection</button>
+        <button class="tab-button" type="button" data-tab="challenge">Challenge</button>
+        <button class="tab-button" type="button" data-tab="progress">Progress</button>
+      </nav>
+    </aside>
 
-    <p><button type="button" onclick="resetProgress()">Reset Progress</button></p>
-  </section>
+    <section class="content">
+      <section class="tab-panel active" id="learn-panel">
+        <div class="section-title">
+          <div>
+            <h2>Flashcards</h2>
+            <p id="word-count">Loading words...</p>
+          </div>
+          <button id="shuffle-button" class="secondary-button" type="button">Shuffle</button>
+        </div>
+        <div id="flashcards" class="card-grid"></div>
+      </section>
 
-  <section id="quiz-section">
-    <h2>Quiz Mini-Game</h2>
-    <p id="quiz-question">Loading quiz...</p>
-    <div id="quiz-options"></div>
-    <p id="quiz-feedback"></p>
-  </section>
+      <section class="tab-panel" id="quiz-panel">
+        <div class="section-title">
+          <div>
+            <h2>Quiz Practice</h2>
+            <p>Pick the matching character and build your streak.</p>
+          </div>
+          <button id="new-quiz-button" class="secondary-button" type="button">New Question</button>
+        </div>
+        <article class="quiz-card">
+          <p class="prompt-label">Question</p>
+          <h3 id="quiz-question">Loading quiz...</h3>
+          <div id="quiz-options" class="option-grid"></div>
+          <p id="quiz-feedback" class="feedback"></p>
+        </article>
+      </section>
 
-  <script src="game-rewards.js"></script>
+      <section class="tab-panel" id="review-panel">
+        <div class="section-title">
+          <div>
+            <h2>Recommended Review</h2>
+            <p>Words appear here when you miss them or save them.</p>
+          </div>
+          <button id="refresh-review-button" class="secondary-button" type="button">Refresh</button>
+        </div>
+        <div id="review-list" class="review-list"></div>
+      </section>
 
-  <script>
-    // Get query parameter from URL
-    function getQueryParam(param) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param);
-    }
+      <section class="tab-panel" id="collection-panel">
+        <div class="section-title">
+          <div>
+            <h2>My Collection</h2>
+            <p>Saved words for personal practice.</p>
+          </div>
+          <button id="clear-collection-button" class="secondary-button danger" type="button">Clear</button>
+        </div>
+        <div id="collection-list" class="review-list"></div>
+      </section>
 
-    // Elements
-    const gradeSelect = document.getElementById('grade-select');
-    const wordsContainer = document.getElementById('words-container');
+      <section class="tab-panel" id="challenge-panel">
+        <div class="section-title">
+          <div>
+            <h2>Speed Challenge</h2>
+            <p>Find as many target characters as you can in 30 seconds.</p>
+          </div>
+          <button id="start-challenge-button" class="primary-button" type="button">Start</button>
+        </div>
+        <article class="challenge-card">
+          <div class="challenge-board">
+            <div>
+              <small>Target</small>
+              <strong id="challenge-target">--</strong>
+            </div>
+            <div>
+              <small>Score</small>
+              <strong id="challenge-score">0</strong>
+            </div>
+            <div>
+              <small>Time</small>
+              <strong id="challenge-time">30</strong>
+            </div>
+          </div>
+          <div id="challenge-options" class="option-grid"></div>
+          <p id="challenge-feedback" class="feedback"></p>
+        </article>
+      </section>
 
-    // Load grade from URL or default
-    let grade = getQueryParam('grade') || '1';
-    gradeSelect.value = grade;
+      <section class="tab-panel" id="progress-panel">
+        <div class="section-title">
+          <div>
+            <h2>Progress</h2>
+            <p>Your local learning record on this browser.</p>
+          </div>
+          <button id="reset-progress-button" class="secondary-button danger" type="button">Reset Progress</button>
+        </div>
+        <div class="progress-grid">
+          <article>
+            <h3>Stats</h3>
+            <dl class="stats-list">
+              <div><dt>Quizzes completed</dt><dd id="completed-quizzes">0</dd></div>
+              <div><dt>Correct answers</dt><dd id="correct-answers">0</dd></div>
+              <div><dt>Mistakes to review</dt><dd id="mistake-count">0</dd></div>
+              <div><dt>Saved words</dt><dd id="saved-count">0</dd></div>
+            </dl>
+          </article>
+          <article>
+            <h3>Badges</h3>
+            <ul id="badges" class="badge-list">
+              <li>No badges yet. Keep learning!</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </section>
+  </main>
 
-    // Fetch and display words
-    function loadWords(grade) {
-      wordsContainer.innerHTML = ''; // Clear previous words
-      fetch(`http://127.0.0.1:5000/api/words?grade=${grade}`)
-        .then(response => response.json())
-        .then(data => {
-          data.forEach(word => {
-            const card = document.createElement('div');
-            card.className = 'word-card';
-            card.innerHTML = `
-              <div class="char">${word.char}</div>
-              <div class="pinyin">${word.pinyin}</div>
-              <div class="meaning">${word.meaning}</div>
-            `;
-            wordsContainer.appendChild(card);
-          });
-
-          renderQuizQuestion(data);
-        })
-        .catch(err => {
-          console.error("Error fetching words:", err);
-          wordsContainer.innerHTML = '<p style="color:red;">Failed to load words. Make sure backend is running.</p>';
-        });
-    }
-
-    // Initial load
-    loadWords(grade);
-
-    // Change grade dynamically
-    gradeSelect.addEventListener('change', () => {
-      grade = gradeSelect.value;
-      // Update URL without reloading
-      window.history.replaceState({}, '', `?grade=${grade}`);
-      loadWords(grade);
-    });
-  </script>
-
+  <script src="app.js"></script>
 </body>
 </html>
