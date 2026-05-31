@@ -8,9 +8,10 @@
 </head>
 <body>
   <header class="app-header">
-    <div>
+    <div class="hero-copy">
       <p class="eyebrow">Chinese learning companion</p>
       <h1>NiHao Buddy</h1>
+      <p class="hero-text">A simple study buddy for practising Chinese words with flashcards, quizzes, rewards, and review.</p>
       <p id="source-status" class="source-status">Loading data source...</p>
     </div>
 
@@ -32,30 +33,56 @@
 
   <main class="app-shell">
     <aside class="sidebar">
-      <label for="grade-select">Level</label>
-      <select id="grade-select">
-        <option value="1">P1</option>
-      </select>
+      <div class="sidebar-title">
+        <strong>Study Controls</strong>
+        <span>Choose your practice set</span>
+      </div>
 
-      <label for="lesson-filter">Lesson</label>
-      <select id="lesson-filter">
-        <option value="all">All lessons</option>
-      </select>
+      <div class="field-group">
+        <label for="grade-select">Level</label>
+        <select id="grade-select">
+          <option value="1">P1</option>
+        </select>
+      </div>
 
-      <label for="search-input">Search</label>
-      <input id="search-input" type="search" placeholder="Character or lesson">
+      <div class="field-group">
+        <label for="lesson-filter">Lesson</label>
+        <select id="lesson-filter">
+          <option value="all">All lessons</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="search-input">Search</label>
+        <input id="search-input" type="search" placeholder="Character, pinyin, phrase">
+      </div>
 
       <nav class="tabs" aria-label="App sections">
-        <button class="tab-button active" type="button" data-tab="learn">Learn</button>
-        <button class="tab-button" type="button" data-tab="quiz">Quiz</button>
-        <button class="tab-button" type="button" data-tab="review">Review</button>
-        <button class="tab-button" type="button" data-tab="collection">Collection</button>
-        <button class="tab-button" type="button" data-tab="challenge">Challenge</button>
-        <button class="tab-button" type="button" data-tab="progress">Progress</button>
+        <button class="tab-button active" type="button" data-tab="learn"><span>学</span> Learn</button>
+        <button class="tab-button" type="button" data-tab="quiz"><span>测</span> Quiz</button>
+        <button class="tab-button" type="button" data-tab="review"><span>复</span> Review</button>
+        <button class="tab-button" type="button" data-tab="collection"><span>藏</span> Collection</button>
+        <button class="tab-button" type="button" data-tab="challenge"><span>玩</span> Challenge</button>
+        <button class="tab-button" type="button" data-tab="progress"><span>星</span> Progress</button>
       </nav>
     </aside>
 
     <section class="content">
+      <section class="mission-strip" aria-label="Learning tools">
+        <article>
+          <strong>Flashcards</strong>
+          <span>Read, listen, save, and mark words you know.</span>
+        </article>
+        <article>
+          <strong>Smart Review</strong>
+          <span>Mistakes and saved words become practice targets.</span>
+        </article>
+        <article>
+          <strong>Rewards</strong>
+          <span>Points, streaks, badges, and a speed challenge.</span>
+        </article>
+      </section>
+
       <section class="tab-panel active" id="learn-panel">
         <div class="section-title">
           <div>

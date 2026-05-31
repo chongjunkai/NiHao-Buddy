@@ -67,6 +67,27 @@ As this was my first software project, the prototype is still a work in progress
 
 ---
 
+## What Was Built
+
+The current prototype includes:
+
+- P1 to P6 Chinese vocabulary practice
+- Flashcards with Chinese characters, pinyin, meanings, useful phrases, and good sentences
+- Audio support using browser speech and external sound links
+- Quiz-based learning to test recognition of Chinese characters
+- Points, rewards, badges, streaks, and progress tracking
+- A mistake review system that helps students revise words they got wrong
+- A personal vocabulary collection for saving useful words
+- Recommended revision based on saved words and quiz mistakes
+- A speed challenge mini-game for quick vocabulary practice
+- A clean local web app interface designed to feel more engaging for students
+
+![NiHao Buddy app screenshot](assets/screenshots/nihao-buddy-flashcards.jpg)
+
+This working prototype helped me turn my original idea into something that can be tested, improved, and explained. It shows how I used coding and AI-assisted development to solve a real learning problem from my own life.
+
+---
+
 ## Future Ideas
 
 ### Learning Features

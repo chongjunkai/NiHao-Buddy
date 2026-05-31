@@ -1,17 +1,19 @@
 :root {
   color-scheme: light;
-  --bg: #f6f7f2;
+  --bg: #f8f4ea;
   --panel: #ffffff;
-  --ink: #21312d;
-  --muted: #60706b;
-  --line: #dbe2d9;
-  --brand: #d9483b;
-  --brand-dark: #a8322a;
-  --teal: #127a78;
-  --gold: #d99b24;
-  --soft-red: #fff0ee;
-  --soft-green: #ecf7f4;
-  --shadow: 0 10px 24px rgba(36, 48, 43, 0.08);
+  --ink: #23302f;
+  --muted: #66736d;
+  --line: #e5d9c7;
+  --brand: #e5533d;
+  --brand-dark: #b4332d;
+  --teal: #0f7c80;
+  --gold: #e2a52e;
+  --green: #32825d;
+  --soft-red: #fff1ed;
+  --soft-green: #eaf7f2;
+  --soft-gold: #fff6df;
+  --shadow: 0 16px 32px rgba(82, 58, 31, 0.1);
 }
 
 * {
@@ -21,7 +23,10 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--bg);
+  background:
+    linear-gradient(135deg, rgba(229, 83, 61, 0.09), transparent 34%),
+    linear-gradient(315deg, rgba(15, 124, 128, 0.08), transparent 36%),
+    var(--bg);
   color: var(--ink);
   font-family: Arial, "Noto Sans SC", sans-serif;
 }
@@ -38,12 +43,19 @@ button {
 
 .app-header {
   align-items: center;
-  background: var(--panel);
-  border-bottom: 1px solid var(--line);
+  background: #fffaf2;
+  border: 1px solid rgba(180, 119, 73, 0.2);
+  border-radius: 0 0 26px 26px;
+  box-shadow: 0 18px 38px rgba(96, 70, 37, 0.11);
   display: flex;
   gap: 24px;
   justify-content: space-between;
-  padding: 22px clamp(18px, 4vw, 44px);
+  margin: 0 clamp(10px, 2vw, 26px);
+  padding: 26px clamp(18px, 4vw, 44px);
+}
+
+.hero-copy {
+  max-width: 720px;
 }
 
 .eyebrow {
@@ -62,8 +74,17 @@ p {
 }
 
 h1 {
-  font-size: 34px;
-  margin-bottom: 6px;
+  font-size: 42px;
+  letter-spacing: 0;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.hero-text {
+  color: #3d4c47;
+  font-size: 17px;
+  line-height: 1.45;
+  margin-bottom: 10px;
 }
 
 .source-status,
@@ -82,14 +103,15 @@ h1 {
 .header-stats {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(3, minmax(88px, 1fr));
+  grid-template-columns: repeat(3, minmax(96px, 1fr));
 }
 
 .header-stats div {
-  background: var(--soft-green);
-  border: 1px solid #cfe4de;
-  border-radius: 8px;
-  padding: 12px 14px;
+  background: var(--panel);
+  border: 1px solid rgba(229, 83, 61, 0.16);
+  border-radius: 14px;
+  box-shadow: 0 8px 18px rgba(85, 59, 34, 0.07);
+  padding: 14px;
   text-align: center;
 }
 
@@ -107,21 +129,42 @@ h1 {
 .app-shell {
   display: grid;
   gap: 22px;
-  grid-template-columns: 230px minmax(0, 1fr);
+  grid-template-columns: 250px minmax(0, 1fr);
   padding: 22px clamp(18px, 4vw, 44px) 40px;
 }
 
 .sidebar {
   align-self: start;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(180, 119, 73, 0.24);
+  border-radius: 18px;
   box-shadow: var(--shadow);
   display: grid;
-  gap: 10px;
-  padding: 16px;
+  gap: 12px;
+  padding: 18px;
   position: sticky;
   top: 16px;
+}
+
+.sidebar-title {
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  gap: 3px;
+  padding-bottom: 12px;
+}
+
+.sidebar-title strong {
+  font-size: 18px;
+}
+
+.sidebar-title span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.field-group {
+  display: grid;
+  gap: 6px;
 }
 
 .sidebar label {
@@ -131,11 +174,12 @@ h1 {
 
 .sidebar input,
 .sidebar select {
+  background: #fffdf8;
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: 10px;
   color: var(--ink);
   min-width: 0;
-  padding: 9px 10px;
+  padding: 10px 11px;
   width: 100%;
 }
 
@@ -151,7 +195,7 @@ h1 {
 .secondary-button,
 .primary-button,
 .mini-button {
-  border-radius: 7px;
+  border-radius: 10px;
   cursor: pointer;
   font-weight: 700;
   min-height: 38px;
@@ -161,7 +205,21 @@ h1 {
 .tab-button {
   background: transparent;
   color: var(--ink);
+  display: flex;
+  gap: 8px;
+  align-items: center;
   text-align: left;
+}
+
+.tab-button span {
+  align-items: center;
+  background: var(--soft-gold);
+  border: 1px solid #f0d79d;
+  border-radius: 8px;
+  display: inline-flex;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
 }
 
 .tab-button.active,
@@ -174,6 +232,33 @@ h1 {
   min-width: 0;
 }
 
+.mission-strip {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 20px;
+}
+
+.mission-strip article {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(180, 119, 73, 0.22);
+  border-radius: 16px;
+  box-shadow: 0 10px 22px rgba(82, 58, 31, 0.07);
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+
+.mission-strip strong {
+  color: var(--brand-dark);
+}
+
+.mission-strip span {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
 .tab-panel {
   display: none;
 }
@@ -184,10 +269,14 @@ h1 {
 
 .section-title {
   align-items: center;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(180, 119, 73, 0.16);
+  border-radius: 16px;
   display: flex;
   gap: 16px;
   justify-content: space-between;
   margin-bottom: 16px;
+  padding: 14px 16px;
 }
 
 .section-title h2 {
@@ -201,6 +290,7 @@ h1 {
 
 .primary-button {
   background: var(--brand);
+  box-shadow: 0 8px 18px rgba(180, 51, 45, 0.2);
   color: white;
 }
 
@@ -210,13 +300,13 @@ h1 {
 
 .secondary-button,
 .mini-button {
-  background: #edf2ef;
+  background: #f0eee6;
   color: var(--ink);
 }
 
 .secondary-button:hover,
 .mini-button:hover {
-  background: #dfe8e3;
+  background: #e7dfd1;
 }
 
 .danger {
@@ -225,8 +315,8 @@ h1 {
 
 .card-grid {
   display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
 }
 
 .word-card,
@@ -236,20 +326,32 @@ h1 {
 .progress-grid article {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 16px;
   box-shadow: var(--shadow);
 }
 
 .word-card {
   display: grid;
-  gap: 8px;
-  min-height: 280px;
-  padding: 14px;
+  gap: 10px;
+  min-height: 328px;
+  overflow: hidden;
+  padding: 16px;
+  position: relative;
+}
+
+.word-card::before {
+  background: linear-gradient(90deg, var(--brand), var(--gold), var(--teal));
+  content: "";
+  height: 5px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 .char {
   color: var(--brand-dark);
-  font-size: 46px;
+  font-size: 56px;
   font-weight: 800;
   line-height: 1;
 }
@@ -261,17 +363,18 @@ h1 {
 
 .pinyin {
   color: var(--teal);
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 800;
 }
 
 .phrase {
   background: var(--soft-green);
-  border-radius: 7px;
+  border: 1px solid #cae6de;
+  border-radius: 10px;
   color: var(--teal);
   font-size: 14px;
   font-weight: 800;
-  padding: 7px 8px;
+  padding: 8px 9px;
 }
 
 .good-sentence {
@@ -282,25 +385,25 @@ h1 {
 
 .card-actions {
   display: grid;
-  gap: 7px;
-  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  grid-template-columns: repeat(3, 1fr);
   margin-top: auto;
 }
 
 .mini-button {
-  font-size: 13px;
+  font-size: 12px;
   min-height: 34px;
-  padding: 7px 9px;
+  padding: 7px 8px;
 }
 
 .mini-button.saved {
-  background: #ffe6df;
+  background: #ffe5dc;
   color: var(--brand-dark);
 }
 
 .quiz-card,
 .challenge-card {
-  padding: 22px;
+  padding: 24px;
 }
 
 .prompt-label {
@@ -323,19 +426,21 @@ h1 {
 }
 
 .option-grid button {
-  background: #f7faf8;
+  background: #fffdf8;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 14px;
   color: var(--ink);
   cursor: pointer;
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 800;
-  min-height: 58px;
+  min-height: 70px;
   padding: 12px;
 }
 
 .option-grid button:hover {
   border-color: var(--teal);
+  box-shadow: 0 10px 20px rgba(15, 124, 128, 0.12);
+  transform: translateY(-1px);
 }
 
 .feedback {
@@ -391,7 +496,8 @@ h1 {
 
 .challenge-board div {
   background: var(--soft-green);
-  border-radius: 8px;
+  border: 1px solid #cae6de;
+  border-radius: 14px;
   padding: 12px;
   text-align: center;
 }
@@ -442,7 +548,7 @@ h1 {
 .badge-list li {
   background: #fff6de;
   border: 1px solid #f0d491;
-  border-radius: 7px;
+  border-radius: 10px;
   padding: 10px;
 }
 
@@ -453,8 +559,8 @@ h1 {
     flex-direction: column;
   }
 
-  .header-stats,
   .app-shell,
+  .mission-strip,
   .progress-grid {
     grid-template-columns: 1fr;
   }
@@ -469,5 +575,9 @@ h1 {
 
   .tab-button {
     text-align: center;
+  }
+
+  .card-actions {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

@@ -221,13 +221,13 @@ function renderFlashcards() {
       <div class="phrase">${word.association || `好词：${word.phrase || word.char}`}</div>
       <div class="good-sentence">${word.good_sentence || ""}</div>
       <div class="card-actions">
-        <button class="mini-button" type="button" data-action="speak">Hear</button>
-        <button class="mini-button" type="button" data-action="sound-link">Sound link</button>
+        <button class="mini-button" type="button" data-action="speak">Listen</button>
+        <button class="mini-button" type="button" data-action="sound-link">Audio</button>
         <button class="mini-button ${state.progress.saved[key] ? "saved" : ""}" type="button" data-action="save">
           ${state.progress.saved[key] ? "Saved" : "Save"}
         </button>
-        <button class="mini-button" type="button" data-action="master">Know it</button>
-        <button class="mini-button" type="button" data-action="quiz">Quiz me</button>
+        <button class="mini-button" type="button" data-action="master">Know</button>
+        <button class="mini-button" type="button" data-action="quiz">Quiz</button>
       </div>
     `;
 
