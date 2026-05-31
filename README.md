@@ -52,60 +52,18 @@ The goal is not only to teach Chinese, but also to make learning feel enjoyable 
 
 ---
 
-## Current Local App
+## Current Prototype
 
-The current local version is a working Flask + HTML/CSS/JavaScript app. It can be run on a computer and used in the browser.
+The current prototype explores several learning features, including:
 
-Implemented features include:
+- Vocabulary learning
+- Flashcard-style revision
+- Chinese words with pinyin and meanings
+- Quiz-based learning activities
+- Educational user interface design
+- AI-assisted content and feature development
 
-- P1-P6 Singapore primary Chinese character lists
-- Flashcard-style learning by grade and lesson
-- Pinyin generated for each character
-- 好词 and 好句 helpers for remembering characters
-- Browser speech pronunciation using the Web Speech API
-- External sound links through Google Translate when extra audio support is needed
-- Quiz practice with points and streaks
-- Rewards, badges, and progress tracking in browser local storage
-- Personal saved-word collection
-- Mistake review and recommended revision list
-- 30-second speed challenge mini-game
-- Search by character, pinyin, lesson, 好词, or 好句
-- Simple local API for grades and words
-
----
-
-## How To Run Locally
-
-```bash
-cd /path/to/NiHao-Buddy
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python backend/app.py
-```
-
-Then open:
-
-```text
-http://127.0.0.1:5000/
-```
-
-The app rebuilds the local SQLite vocabulary database from the CSV files when the Flask server starts.
-
----
-
-## Project Data
-
-Vocabulary data is stored in CSV files:
-
-- `data/grade1.csv`
-- `data/grade2.csv`
-- `data/grade3.csv`
-- `data/grade4.csv`
-- `data/grade5.csv`
-- `data/grade6.csv`
-
-The app enriches each character with pinyin, 好词, 好句, and sound links at runtime.
+As this was my first software project, the prototype is still a work in progress and many ideas remain under development.
 
 ---
 
@@ -113,20 +71,26 @@ The app enriches each character with pinyin, 好词, 好句, and sound links at 
 
 ### Learning Features
 
-- More carefully hand-curated 好词好句 for every character
-- Confusing-character comparison
-- Spaced repetition scheduling
-- Story practice using saved or mistaken words
+- Grade-level vocabulary lists
+- Example sentences
+- Pronunciation audio
+- Personal vocabulary collections
+- Mistake review system
 
 ### Gamification Features
 
+- Points and rewards
+- Achievement badges
+- Daily learning streaks
 - Progress levels
 - Unlockable content
 - Learning challenges
-- More mini-games based on vocabulary learning
+- Mini-games based on vocabulary learning
 
 ### Personalised Learning
 
+- Progress tracking
+- Recommended revision topics
 - Spaced repetition review
 - Personal learning statistics
 
@@ -150,11 +114,7 @@ The app enriches each character with pinyin, 好词, 好句, and sound links at 
 - HTML
 - CSS
 - JavaScript
-- Python
-- Flask
-- SQLite
-- pypinyin
-- jieba
+- Python (planned exploration)
 - ChatGPT and AI-assisted development tools
 
 ---
@@ -196,11 +156,11 @@ Most importantly, I learned that even unfinished projects can teach valuable les
 
 ## Current Status
 
-Working local demo
+🚧 Work in Progress
 
-NiHao Buddy is still an ongoing learning project, but the current version is usable as a local demo.
+NiHao Buddy remains an ongoing learning project.
 
-Some advanced ideas, such as multiple user profiles, handwriting recognition, and full spaced repetition scheduling, are not implemented yet.
+Although many of the original ideas have not yet been fully implemented, this project sparked my interest in educational technology, AI-assisted development, and software design.
 
 It continues to inspire many of my later coding projects and experiments.
 
