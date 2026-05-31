@@ -1,88 +1,173 @@
-# NiHao-Buddy
-A multi-function Chinese learning app for kids
+# NiHao Buddy 🇨🇳📚
 
-NiHao-Buddy – Chinese Master App
+### My First AI-Assisted Educational Technology Project
 
-A coding project to improve Chinese proficiency.
+## Project Overview
 
-🧭 1. Project Goal & Overview
-🎯 Objective
+NiHao Buddy is an experimental Chinese learning application inspired by my own learning journey.
 
-Create a multi-functional Chinese learning app that helps children:
+I enjoy technology, coding, and building things, but I found Chinese more challenging than some of my other subjects. My mum noticed this and encouraged me to think about how technology could make Chinese learning more effective and enjoyable.
 
-Learn and review grade-level vocabulary
+Together, we brainstormed ideas for a Chinese learning app that could help not only me, but also my younger sister and other students who may struggle with Chinese.
 
-Add custom new words
+This became my first AI-assisted software development project and my introduction to using technology to solve real learning problems.
 
-Generate word lists, flashcards, and review exercises
+---
 
-Track learning progress and mistakes
+## How the Idea Started
 
-Use spaced repetition for memory
+Many students find Chinese difficult because learning vocabulary can feel repetitive and sometimes less engaging.
 
-Learn with audio playback, pinyin, translation, and example sentences
+My mum and I discussed what makes games enjoyable and what helps people remember information better. We wondered if learning Chinese could be made more fun through technology.
 
-Include fun stories based on mistake words
+We came up with ideas such as:
 
-Practice handwriting and pinyin
+- Interactive quizzes
+- Flashcards
+- Rewards and achievements
+- Learning streaks
+- Progress tracking
+- Audio pronunciation support
+- Vocabulary stories
+- Personalised review based on mistakes
+- Fun challenges and mini-games
 
-Support multiple users (e.g., siblings)
+We then explored whether these ideas could be combined into a learning app that makes Chinese practice more engaging and motivating.
 
-Be simple, well-structured, and easy to maintain
+---
 
+## Project Vision
 
-🧩 2. Recommended Technology Stack
-Component	Technology	Purpose
-Frontend	HTML + CSS + JavaScript + (React optional)	Interface & interaction
-Backend	Python (Flask or FastAPI)	API & data processing
-Database	SQLite (local) or Firebase (cloud sync)	Store vocabulary & user data
-Audio	Web Speech API	Text-to-speech & pronunciation
-Handwriting	Canvas + Tesseract.js (optional)	Handwriting recognition
-Deployment	GitHub Pages (frontend) + Render/Railway (backend)	Free hosting
-Version Control	Git + GitHub	Project collaboration 
+The long-term vision of NiHao Buddy is to create a learning companion that helps students:
 
-🏗️ 3. App Features Breakdown
+- Build Chinese vocabulary confidently
+- Review words more effectively
+- Learn through games and challenges
+- Stay motivated through rewards and achievements
+- Practice pronunciation and pinyin
+- Learn from their mistakes
+- Develop consistent learning habits
 
-1️⃣ User & Progress Tracking
+The goal is not only to teach Chinese, but also to make learning feel enjoyable and rewarding.
 
-Multiple user profiles (Child A, Child B)
+---
 
-Tracks personal progress, wrong words, and daily streaks
+## Current Prototype
 
-2️⃣ Vocabulary Management
+The current prototype explores several learning features, including:
 
-Import vocabulary by grade (CSV/Excel)
+- Vocabulary learning
+- Flashcard-style revision
+- Chinese words with pinyin and meanings
+- Quiz-based learning activities
+- Educational user interface design
+- AI-assisted content and feature development
 
-Add new words manually
+As this was my first software project, the prototype is still a work in progress and many ideas remain under development.
 
-Automatically generate:
+---
 
-Word lists
+## Future Ideas
 
-Common phrases
+### Learning Features
 
-Word collocations
+- Grade-level vocabulary lists
+- Example sentences
+- Pronunciation audio
+- Personal vocabulary collections
+- Mistake review system
 
-3️⃣ Study & Review System
+### Gamification Features
 
-Flashcards with Chinese + Pinyin + English meaning
+- Points and rewards
+- Achievement badges
+- Daily learning streaks
+- Progress levels
+- Unlockable content
+- Learning challenges
+- Mini-games based on vocabulary learning
 
-“Confusing characters” comparison
+### Personalised Learning
 
-Example sentences
+- Progress tracking
+- Recommended revision topics
+- Spaced repetition review
+- Personal learning statistics
 
-Voice playback for reading aloud
+### Creative Features
 
-4️⃣ Smart Memory & Story System
+- Vocabulary stories
+- Interactive learning adventures
+- Character-based rewards
+- Story-based revision activities
 
-Review reminders based on Ebbinghaus forgetting curve
+### Family Learning
 
-Create fun mini-stories using mistake words to help retention
+- Multiple user profiles
+- Shared family learning progress
+- Parent support tools
 
-5️⃣ Writing & Pinyin Practice
+---
 
-On-screen handwriting using Canvas
+## Technologies Explored
 
-Optional OCR check for correctness
+- HTML
+- CSS
+- JavaScript
+- Python (planned exploration)
+- ChatGPT and AI-assisted development tools
 
-“Write the character from pinyin” quiz mode
+---
+
+## My Development Process
+
+I used ChatGPT extensively throughout the project.
+
+AI helped generate code, suggest features, and explore possible solutions.
+
+My role included:
+
+- Identifying the learning problem
+- Brainstorming ideas with my mum
+- Planning features
+- Testing the application
+- Evaluating AI-generated solutions
+- Improving the user experience
+- Learning how software projects are built
+
+This project taught me that building useful software requires much more than writing code. It also involves understanding users, solving problems, and continuously improving ideas.
+
+---
+
+## What I Learned
+
+Through this project, I learned:
+
+- How software projects begin with real-world problems
+- How AI can assist software development
+- How difficult it is to turn ideas into working products
+- The importance of testing and iteration
+- How educational technology can help learners
+- How large projects can become more complex over time
+
+Most importantly, I learned that even unfinished projects can teach valuable lessons.
+
+---
+
+## Current Status
+
+🚧 Work in Progress
+
+NiHao Buddy remains an ongoing learning project.
+
+Although many of the original ideas have not yet been fully implemented, this project sparked my interest in educational technology, AI-assisted development, and software design.
+
+It continues to inspire many of my later coding projects and experiments.
+
+---
+
+## Acknowledgement
+
+Special thanks to my mum for brainstorming ideas, providing feedback, encouraging experimentation, and helping shape the vision behind this project.
+
+This project reflects our shared belief that learning can be more effective when it is engaging, interactive, and enjoyable.
