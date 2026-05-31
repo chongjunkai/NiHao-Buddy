@@ -82,7 +82,9 @@ The current prototype includes:
 - A speed challenge mini-game for quick vocabulary practice
 - A colourful gamified web app interface with quest-style navigation, XP progress cards, badges, and a Buddy Bot mascot
 
-![NiHao Buddy app screenshot](assets/screenshots/nihao-buddy-flashcards.jpg)
+
+<img width="1276" height="754" alt="Screenshot 2026-05-31 at 11 22 09 PM" src="https://github.com/user-attachments/assets/33b65279-6991-48d0-8933-7fe376411fe3" />
+
 
 This working prototype helped me turn my original idea into something that can be tested, improved, and explained. It shows how I used coding and AI-assisted development to solve a real learning problem from my own life.
 
