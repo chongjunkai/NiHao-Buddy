@@ -138,13 +138,13 @@ This working prototype helped me turn my original idea into something that can b
 - CSS
 - JavaScript
 - Python (planned exploration)
-- ChatGPT and AI-assisted development tools
+- AI-assisted development tools
 
 ---
 
 ## My Development Process
 
-I used ChatGPT extensively throughout the project.
+I used AI extensively throughout the project.
 
 AI helped generate code, suggest features, and explore possible solutions.
 
