@@ -24,6 +24,7 @@
         <span>Daily Quest</span>
         <span>XP Rewards</span>
         <span>Word Arena</span>
+        <span>Podcast Room</span>
       </div>
       <p id="source-status" class="source-status">Loading data source...</p>
     </div>
@@ -86,6 +87,7 @@
         <button class="tab-button" type="button" data-tab="review"><span>复</span> Review Quest</button>
         <button class="tab-button" type="button" data-tab="collection"><span>藏</span> Backpack</button>
         <button class="tab-button" type="button" data-tab="challenge"><span>玩</span> Speed Run</button>
+        <button class="tab-button" type="button" data-tab="podcast"><span>听</span> Podcast Room</button>
         <button class="tab-button" type="button" data-tab="progress"><span>星</span> Badges</button>
       </nav>
     </aside>
@@ -103,6 +105,10 @@
         <article>
           <strong>Mission 3</strong>
           <span>Build a streak, win badges, and try speed mode.</span>
+        </article>
+        <article>
+          <strong>Mission 4</strong>
+          <span>Listen to vocabulary stories for 磨耳朵 practice.</span>
         </article>
       </section>
 
@@ -181,6 +187,50 @@
           <div id="challenge-options" class="option-grid"></div>
           <p id="challenge-feedback" class="feedback"></p>
         </article>
+      </section>
+
+      <section class="tab-panel" id="podcast-panel">
+        <div class="section-title">
+          <div>
+            <h2>Podcast Room</h2>
+            <p>磨耳朵: listen first, then speak, read, and write.</p>
+          </div>
+          <button id="new-podcast-button" class="secondary-button" type="button">New Story</button>
+        </div>
+        <article class="podcast-card">
+          <div>
+            <p class="prompt-label">Bedtime Listening Quest</p>
+            <h3>Close your eyes and listen to words from this level.</h3>
+            <p class="podcast-note">This uses browser speech instead of saved audio files, so it does not take extra storage.</p>
+          </div>
+          <div id="podcast-words" class="word-chip-list"></div>
+          <div id="podcast-story" class="story-box">Loading a listening story...</div>
+          <div class="podcast-actions">
+            <button id="play-podcast-button" class="primary-button" type="button">Play Story</button>
+            <button id="stop-podcast-button" class="secondary-button" type="button">Stop</button>
+          </div>
+        </article>
+
+        <div class="section-title resource-title">
+          <div>
+            <h2>More Listening</h2>
+            <p>External Mandarin story podcasts for extra bedtime listening.</p>
+          </div>
+        </div>
+        <div class="resource-grid">
+          <a href="https://podcasts.apple.com/us/podcast/chinese-short-stories-for-kids-adventures-with-ollie/id1581310942" target="_blank" rel="noopener">
+            <strong>Adventures with Ollie</strong>
+            <span>Mandarin Chinese short stories for kids and families.</span>
+          </a>
+          <a href="https://podcasts.apple.com/us/podcast/chinese-stories-for-kids-bedtime-stories-exploart-podcast/id1736546686" target="_blank" rel="noopener">
+            <strong>Exploart Bedtime Stories</strong>
+            <span>Chinese bedtime stories for children.</span>
+          </a>
+          <a href="https://podcasts.apple.com/us/podcast/the-abc-storytime-podcast/id1546174165" target="_blank" rel="noopener">
+            <strong>ABC Storytime</strong>
+            <span>Children's stories in Mandarin Chinese.</span>
+          </a>
+        </div>
       </section>
 
       <section class="tab-panel" id="progress-panel">

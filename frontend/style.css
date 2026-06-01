@@ -461,7 +461,7 @@ h1 {
 .mission-strip {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-bottom: 22px;
 }
 
@@ -498,6 +498,11 @@ h1 {
 
 .mission-strip article:nth-child(3)::before {
   background: linear-gradient(135deg, var(--purple), var(--pink));
+}
+
+.mission-strip article:nth-child(4)::before {
+  background: linear-gradient(135deg, var(--orange), var(--yellow));
+  color: var(--ink);
 }
 
 .mission-strip strong {
@@ -792,6 +797,114 @@ h1 {
   font-weight: 900;
 }
 
+.podcast-card {
+  background: #ffffff;
+  border: 4px solid var(--line);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 18px;
+  margin-bottom: 22px;
+  overflow: hidden;
+  padding: 24px;
+  position: relative;
+}
+
+.podcast-card::before {
+  background: linear-gradient(90deg, var(--purple), var(--pink), var(--orange));
+  content: "";
+  height: 12px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.podcast-card h3 {
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.podcast-note {
+  color: var(--muted);
+  font-weight: 800;
+  margin-bottom: 0;
+}
+
+.word-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.word-chip-list span {
+  background: #e9fff5;
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 5px 0 rgba(32, 40, 72, 0.1);
+  color: #096f68;
+  font-weight: 900;
+  padding: 7px 11px;
+}
+
+.story-box {
+  background: #fff7db;
+  border: 4px solid var(--line);
+  border-radius: 22px;
+  color: #2b3658;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.75;
+  padding: 18px;
+  white-space: pre-line;
+}
+
+.podcast-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.resource-title {
+  margin-top: 8px;
+}
+
+.resource-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.resource-grid a {
+  background: #ffffff;
+  border: 4px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 10px 0 rgba(32, 40, 72, 0.14);
+  color: var(--ink);
+  display: grid;
+  gap: 8px;
+  min-height: 132px;
+  padding: 18px;
+  text-decoration: none;
+}
+
+.resource-grid a:hover {
+  background: #8fd3ff;
+  transform: translateY(-2px);
+}
+
+.resource-grid strong {
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.resource-grid span {
+  color: var(--muted);
+  font-weight: 800;
+  line-height: 1.4;
+}
+
 .progress-grid {
   display: grid;
   gap: 18px;
@@ -873,6 +986,7 @@ h1 {
 
   .app-shell,
   .mission-strip,
+  .resource-grid,
   .progress-grid {
     grid-template-columns: 1fr;
   }

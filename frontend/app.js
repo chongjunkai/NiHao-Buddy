@@ -10,6 +10,8 @@ const state = {
   challengeScore: 0,
   challengeTime: 30,
   challengeTimer: null,
+  podcastWords: [],
+  podcastStory: "",
   progress: {
     points: 0,
     streak: 0,
@@ -39,6 +41,8 @@ const els = {
   challengeTime: document.getElementById("challenge-time"),
   challengeOptions: document.getElementById("challenge-options"),
   challengeFeedback: document.getElementById("challenge-feedback"),
+  podcastWords: document.getElementById("podcast-words"),
+  podcastStory: document.getElementById("podcast-story"),
   points: document.getElementById("points"),
   streak: document.getElementById("streak"),
   masteredCount: document.getElementById("mastered-count"),
@@ -85,6 +89,10 @@ function speak(text) {
   utterance.rate = 0.85;
   speechSynthesis.cancel();
   speechSynthesis.speak(utterance);
+}
+
+function stopSpeaking() {
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
 }
 
 function openSoundLink(word) {
@@ -414,6 +422,54 @@ function startChallenge() {
   }, 1000);
 }
 
+function buildPodcastStory() {
+  const pool = state.filteredWords.length >= 6 ? state.filteredWords : state.words;
+  state.podcastWords = shuffle(pool).slice(0, 8);
+
+  if (state.podcastWords.length === 0) {
+    state.podcastStory = "请先选择一个年级，然后再开始听故事。";
+    return;
+  }
+
+  const chars = state.podcastWords.map(word => word.char).join("、");
+  const phrases = state.podcastWords
+    .map(word => word.phrase)
+    .filter(Boolean)
+    .slice(0, 5)
+    .join("、");
+  const sentenceLines = state.podcastWords
+    .slice(0, 4)
+    .map(word => (word.good_sentence || "").replace(/^好句：/, ""))
+    .filter(Boolean);
+
+  state.podcastStory = [
+    `睡前中文小播客开始了。今天我们要听的词有：${chars}。`,
+    `请你闭上眼睛，慢慢听。先听声音，再想意思。`,
+    `在 NiHao Buddy 的词语乐园里，小伙伴把这些好词放进背包：${phrases || chars}。`,
+    ...sentenceLines,
+    `听完以后，你可以轻轻读一遍：${chars}。学习语言就像小宝宝一样，先多听，再模仿说，最后再读和写。晚安，明天继续完成新的中文任务。`
+  ].join("\n\n");
+}
+
+function renderPodcast() {
+  if (!state.podcastStory) buildPodcastStory();
+
+  els.podcastWords.innerHTML = "";
+  state.podcastWords.forEach(word => {
+    const chip = document.createElement("span");
+    chip.textContent = `${word.char} ${word.pinyin || ""}`;
+    els.podcastWords.appendChild(chip);
+  });
+
+  els.podcastStory.textContent = state.podcastStory;
+}
+
+function playPodcast() {
+  if (!state.podcastStory) buildPodcastStory();
+  speak(state.podcastStory);
+  addPoints(4);
+}
+
 function showTab(tabName) {
   document.querySelectorAll(".tab-button").forEach(button => {
     button.classList.toggle("active", button.dataset.tab === tabName);
@@ -428,6 +484,7 @@ function renderAll() {
   renderFlashcards();
   renderReview();
   renderCollection();
+  renderPodcast();
 }
 
 async function loadSourceStatus() {
@@ -466,6 +523,8 @@ async function loadWords() {
   renderLessonFilter();
   renderAll();
   renderQuiz();
+  buildPodcastStory();
+  renderPodcast();
 }
 
 function resetProgress() {
@@ -513,6 +572,12 @@ function bindEvents() {
   document.getElementById("new-quiz-button").addEventListener("click", () => renderQuiz());
   document.getElementById("refresh-review-button").addEventListener("click", renderReview);
   document.getElementById("start-challenge-button").addEventListener("click", startChallenge);
+  document.getElementById("new-podcast-button").addEventListener("click", () => {
+    buildPodcastStory();
+    renderPodcast();
+  });
+  document.getElementById("play-podcast-button").addEventListener("click", playPodcast);
+  document.getElementById("stop-podcast-button").addEventListener("click", stopSpeaking);
   document.getElementById("reset-progress-button").addEventListener("click", resetProgress);
   document.getElementById("clear-collection-button").addEventListener("click", () => {
     state.progress.saved = {};

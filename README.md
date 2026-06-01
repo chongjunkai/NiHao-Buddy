@@ -74,6 +74,8 @@ The current prototype includes:
 - P1 to P6 Chinese vocabulary practice
 - Flashcards with Chinese characters, pinyin, meanings, useful phrases, and good sentences
 - Audio support using browser speech and external sound links
+- Podcast Room for 磨耳朵 listening practice, using browser speech to read Chinese stories containing current vocabulary words
+- External Mandarin story podcast links for extra bedtime listening without storing large audio files locally
 - Quiz-based learning to test recognition of Chinese characters
 - Points, rewards, badges, streaks, and progress tracking
 - A mistake review system that helps students revise words they got wrong
@@ -87,6 +89,22 @@ The current prototype includes:
 
 
 This working prototype helped me turn my original idea into something that can be tested, improved, and explained. It shows how I used coding and AI-assisted development to solve a real learning problem from my own life.
+
+---
+
+## Podcast Room
+
+I added a Podcast Room because language learning starts with listening. Before students can speak, read, and write well, they need to hear the language many times, similar to how babies first learn by listening and copying.
+
+The Podcast Room creates short Chinese listening stories using words from the selected P1 to P6 vocabulary level. Students can close their eyes and listen to the story being read aloud by the browser. This supports 磨耳朵 practice and can also be used at bedtime, so learning can continue in a relaxed way.
+
+![NiHao Buddy Podcast Room screenshot](assets/screenshots/nihao-buddy-podcast-room.jpg)
+
+To avoid making the project too large, the app does not store audio files locally. It uses browser speech for the built-in story reading feature and includes links to publicly available Mandarin story podcasts for extra listening practice:
+
+- [Chinese Short Stories for Kids - Adventures with Ollie](https://podcasts.apple.com/us/podcast/chinese-short-stories-for-kids-adventures-with-ollie/id1581310942)
+- [Chinese Stories For Kids | Bedtime Stories | Exploart Podcast](https://podcasts.apple.com/us/podcast/chinese-stories-for-kids-bedtime-stories-exploart-podcast/id1736546686)
+- [The ABC Storytime Podcast](https://podcasts.apple.com/us/podcast/the-abc-storytime-podcast/id1546174165)
 
 ---
 
