@@ -204,6 +204,18 @@ function getLesson(word) {
   return match ? match[1] : "other";
 }
 
+function getQuizPrompt(word) {
+  const lesson = getLesson(word);
+  const lessonText = lesson === "other" ? "this level" : `Lesson ${lesson}`;
+  const wordType = word.meaning.includes("写")
+    ? "writing word"
+    : word.meaning.includes("识读")
+      ? "recognition word"
+      : "vocabulary word";
+
+  return `Find the character for pinyin: ${word.pinyin || "listen"} (${lessonText}, ${wordType})`;
+}
+
 function chooseChineseVoice() {
   if (!("speechSynthesis" in window)) return null;
 
@@ -481,7 +493,7 @@ function renderQuiz(forcedWord) {
   ]);
 
   state.quizAnswer = answer;
-  els.quizQuestion.textContent = `Find: ${answer.pinyin} - ${answer.phrase}`;
+  els.quizQuestion.textContent = getQuizPrompt(answer);
   els.quizFeedback.textContent = "";
   els.quizOptions.innerHTML = "";
 
