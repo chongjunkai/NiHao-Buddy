@@ -321,6 +321,7 @@ const state = {
   quizAnswer: null,
   challengeAnswer: null,
   challengeWords: [],
+  challengeTargetsLeft: 0,
   challengeScore: 0,
   challengeTime: 30,
   challengeTimer: null,
@@ -889,40 +890,57 @@ function setChallengeQuestion() {
   if (state.challengeWords.length < 4) return;
 
   const answer = shuffle(state.challengeWords)[0];
-  const choices = shuffle([
-    answer,
-    ...shuffle(state.challengeWords.filter(word => wordKey(word) !== wordKey(answer))).slice(0, 3)
+  const targetCount = 3 + Math.floor(Math.random() * 3);
+  const tileCount = 10 + Math.floor(Math.random() * 11);
+  const distractors = shuffle(state.challengeWords.filter(word => wordKey(word) !== wordKey(answer)))
+    .slice(0, tileCount - targetCount);
+  const tiles = shuffle([
+    ...Array.from({ length: targetCount }, () => ({ word: answer, isTarget: true })),
+    ...distractors.map(word => ({ word, isTarget: false }))
   ]);
 
   state.challengeAnswer = answer;
+  state.challengeTargetsLeft = targetCount;
   els.challengeTarget.innerHTML = `
     <span class="target-char">${escapeHTML(answer.char)}</span>
     <span class="target-meaning">${escapeHTML(getEnglishHint(answer))}</span>
   `;
   els.challengeOptions.innerHTML = "";
+  els.challengeFeedback.textContent = `Find all ${targetCount} hidden ${answer.char} tiles.`;
 
-  choices.forEach(choice => {
+  tiles.forEach(tile => {
+    const choice = tile.word;
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "challenge-option";
+    button.className = "challenge-option hunt-tile";
     button.innerHTML = `
-      <span class="combo-line">${escapeHTML(makeMixedChallengeText(choice))}</span>
+      <span class="hunt-char">${escapeHTML(choice.char)}</span>
+      <span class="hunt-pinyin">${escapeHTML(choice.pinyin || "")}</span>
     `;
     button.addEventListener("click", () => {
-      if (wordKey(choice) === wordKey(state.challengeAnswer)) {
+      if (tile.isTarget && !button.classList.contains("found")) {
+        button.classList.add("found");
+        button.disabled = true;
         state.challengeScore += 1;
-        els.challengeFeedback.textContent = `Nice. ${state.challengeAnswer.char} appears again and again in the phrase combo.`;
+        state.challengeTargetsLeft -= 1;
+        els.challengeFeedback.textContent = state.challengeTargetsLeft === 0
+          ? `Round cleared. You found every ${state.challengeAnswer.char}.`
+          : `${state.challengeTargetsLeft} more ${state.challengeAnswer.char} to find.`;
         addPoints(3);
-      } else {
-        els.challengeFeedback.textContent = `Missed: find the combo with ${state.challengeAnswer.char}.`;
+        els.challengeScore.textContent = state.challengeScore;
+        if (state.challengeTargetsLeft === 0) {
+          setTimeout(() => setChallengeQuestion(), 700);
+        }
+      } else if (!tile.isTarget) {
+        button.classList.add("missed");
+        button.disabled = true;
+        els.challengeFeedback.textContent = `Not ${state.challengeAnswer.char}. Keep hunting.`;
         state.progress.mistakes[wordKey(state.challengeAnswer)] = {
           ...state.challengeAnswer,
           misses: (state.progress.mistakes[wordKey(state.challengeAnswer)]?.misses || 0) + 1
         };
         saveProgress();
       }
-      els.challengeScore.textContent = state.challengeScore;
-      setChallengeQuestion();
     });
     els.challengeOptions.appendChild(button);
   });
