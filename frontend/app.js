@@ -529,6 +529,57 @@ function wordsWithEnglishHints(words) {
   return words.filter(word => getEnglishHint(word));
 }
 
+const COMPO_THEMES = [
+  {
+    title: "帮助别人",
+    opening: "一个风和日丽的下午，我在校园里看见一位同学遇到了困难。",
+    middle: "我没有袖手旁观，而是主动走上前去，耐心地帮助他。虽然事情不大，却让我明白了助人为乐的意义。",
+    ending: "从那以后，我提醒自己要多关心身边的人，让校园变得更温暖。"
+  },
+  {
+    title: "勇敢面对困难",
+    opening: "每个人都会遇到困难，重要的是我们用什么态度去面对。",
+    middle: "一开始，我感到紧张又害怕，可是我告诉自己不能轻易放弃。我深深吸了一口气，认真思考解决办法。",
+    ending: "这件事让我明白，只要勇敢尝试，再大的困难也能一步一步克服。"
+  },
+  {
+    title: "珍惜时间",
+    opening: "时间像流水一样，一去不回头。",
+    middle: "以前，我常常拖拖拉拉，把宝贵的时间浪费掉。后来，我学会先订计划，再一步一步完成任务。",
+    ending: "我终于明白，珍惜时间就是珍惜自己的成长机会。"
+  },
+  {
+    title: "健康生活",
+    opening: "健康的身体是学习和生活的重要基础。",
+    middle: "我们应该多运动，少吃不健康的食物，也要保持充足的睡眠。这样，上课时才会更有精神。",
+    ending: "养成良好的生活习惯，能让我们每天都充满活力。"
+  }
+];
+
+const ORAL_PATTERNS = [
+  "我认为，这种做法是值得鼓励的，因为它表现出关心别人和负责任的态度。",
+  "如果我是视频中的同学，我会先冷静下来，再想办法解决问题。",
+  "在日常生活中，我也遇过类似的情况，所以我明白互相帮助很重要。",
+  "这件事提醒我们，不能只想到自己，也要考虑别人的感受。",
+  "总的来说，只要大家愿意多走一步，很多问题都可以变得更好。"
+];
+
+function uniquePhrases(words) {
+  const seen = new Set();
+  return words
+    .map(word => ({
+      phrase: word.phrase,
+      sentence: stripLabel(word.good_sentence, "好句："),
+      char: word.char,
+      pinyin: word.pinyin
+    }))
+    .filter(item => {
+      if (!item.phrase || seen.has(item.phrase)) return false;
+      seen.add(item.phrase);
+      return true;
+    });
+}
+
 function chooseChineseVoice() {
   if (!("speechSynthesis" in window)) return null;
 
@@ -990,29 +1041,44 @@ function startChallenge() {
 
 function buildPodcastStory() {
   const pool = state.filteredWords.length >= 6 ? state.filteredWords : state.words;
-  state.podcastWords = shuffle(pool).slice(0, 6);
+  const strongerPool = wordsWithEnglishHints(pool);
+  const phraseSource = strongerPool.length >= 6 ? strongerPool : pool;
+  const phraseItems = uniquePhrases(shuffle(phraseSource)).slice(0, 6);
+  state.podcastWords = phraseItems.map(item => ({
+    char: item.char,
+    pinyin: item.pinyin,
+    phrase: item.phrase,
+    good_sentence: item.sentence
+  }));
 
   if (state.podcastWords.length === 0) {
-    state.podcastStory = "请先选择一个年级，然后再开始听故事。";
+    state.podcastStory = "请先选择一个年级，然后再开始听好词好句练习。";
     return;
   }
 
-  const chars = state.podcastWords.map(word => word.char).join("、");
-  const phrases = state.podcastWords
-    .map(word => word.phrase)
-    .filter(Boolean)
-    .slice(0, 4)
-    .join("、");
-  const [hero, friend, place, clue, action, treasure] = state.podcastWords;
-  const sentence = word => (word?.good_sentence || "").replace(/^好句：/, "");
+  const theme = shuffle(COMPO_THEMES)[0];
+  const oralPattern = shuffle(ORAL_PATTERNS)[0];
+  const phrases = phraseItems.map(item => item.phrase).join("、");
+  const phraseLines = phraseItems
+    .slice(0, 5)
+    .map((item, index) => {
+      const meaning = getEnglishHint({ phrase: item.phrase });
+      const meaningText = meaning ? `（${meaning}）` : "";
+      return `${index + 1}. ${item.phrase}${meaningText}。${item.sentence || `学习「${item.char}」时，可以用「${item.phrase}」来帮助记忆。`}`;
+    })
+    .join("\n");
+  const selectedPhrases = phraseItems.slice(0, 3).map(item => item.phrase);
+  const bridgeSentence = selectedPhrases.length
+    ? `今天的小作文会练习这些好词：${selectedPhrases.join("、")}。`
+    : "今天的小作文会练习课本里的生字和好词。";
 
   state.podcastStory = [
-    `欢迎来到 NiHao Buddy 睡前小播客。请闭上眼睛，慢慢呼吸。今天的魔法词是：${chars}。`,
-    `小小探险家带着「${hero.char}」和「${friend.char}」出发了。他们走进一个会发光的词语森林，听见树叶轻轻地说：${phrases || chars}。`,
-    `忽然，一张任务卡飘了下来。卡上写着：${sentence(place) || `请找到藏着「${place.char}」的地方。`}`,
-    `探险家仔细听，认真想。他发现「${clue.char}」是线索，「${action.char}」是动作，「${treasure.char}」是宝物。`,
-    `他轻轻念：${hero.char}，${friend.char}，${place.char}，${clue.char}，${action.char}，${treasure.char}。声音像小星星一样，一颗一颗落进心里。`,
-    `故事结束前，我们再听一次：${chars}。先听，再说；先模仿，再读写。晚安，明天继续完成新的中文任务。`
+    `欢迎来到 NiHao Buddy 好词好句听力练习。今天的主题是：${theme.title}。`,
+    `第一部分：先听好词。${phrases}。请一边听，一边想这些词可以放进什么作文情节里。`,
+    `第二部分：听好句。\n${phraseLines}`,
+    `第三部分：口试表达句。${oralPattern}`,
+    `第四部分：小作文示范。${bridgeSentence}${theme.opening}${theme.middle}${theme.ending}`,
+    `最后复习一次：${phrases}。听完后，可以选一个好词，自己造一句话。`
   ].join("\n\n");
 }
 

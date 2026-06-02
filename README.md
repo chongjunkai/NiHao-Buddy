@@ -74,9 +74,9 @@ The current prototype includes:
 - P1 to P6 Chinese vocabulary practice
 - Flashcards with Chinese characters, pinyin, meanings, useful phrases, and good sentences
 - Audio support using browser speech and external sound links
-- Podcast Room for 磨耳朵 listening practice, using browser speech to read Chinese stories containing current vocabulary words
-- More engaging bedtime-style listening stories with child-friendly pacing, higher-pitched browser speech, and repeated vocabulary exposure
-- External Mandarin story podcast links for extra bedtime listening without storing large audio files locally
+- Compo Listening Room for 磨耳朵 practice, using browser speech to read good phrases, good sentences, oral answer patterns, and short composition-style passages
+- PSLE-inspired listening practice themes such as helping others, facing difficulties, cherishing time, and healthy living
+- External Singapore PSLE oral and composition links for extra practice without storing large audio files locally
 - Student profile login for individual progress tracking
 - Two demo learner profiles: Enzo starts on P6 content, while Enya is age 6 and starts on P1 content
 - Separate local progress records for each learner, including points, streaks, mistakes, saved words, badges, and listening history
@@ -110,19 +110,19 @@ This helps show how NiHao Buddy can become more personalised for different stude
 
 ---
 
-## Podcast Room
+## Compo Listening Room
 
 I added a Podcast Room because language learning starts with listening. Before students can speak, read, and write well, they need to hear the language many times, similar to how babies first learn by listening and copying.
 
-The Podcast Room creates short Chinese listening stories using words from the selected P1 to P6 vocabulary level. Students can close their eyes and listen to the story being read aloud by the browser. The app chooses a Chinese browser voice when available and uses a slightly higher pitch with slower pacing to make the story sound more child-friendly. This supports 磨耳朵 practice and can also be used at bedtime, so learning can continue in a relaxed way.
+The Compo Listening Room now focuses on useful PSLE-style language rather than random stories. It creates listening practice using good phrases, good sentences, oral answer patterns, and short composition-style passages connected to common school themes such as helping others, facing difficulties, cherishing time, and healthy living. Students can listen first, then reuse the phrases in oral practice or composition writing.
 
 ![NiHao Buddy Podcast Room screenshot](assets/screenshots/nihao-buddy-podcast-room.jpg)
 
-To avoid making the project too large, the app does not store audio files locally. It uses browser speech for the built-in story reading feature and includes links to publicly available Mandarin story podcasts for extra listening practice:
+To avoid making the project too large, the app does not store audio files locally. It uses browser speech for the built-in listening feature and includes links to Singapore-focused PSLE oral and composition resources for extra practice:
 
-- [Chinese Short Stories for Kids - Adventures with Ollie](https://podcasts.apple.com/us/podcast/chinese-short-stories-for-kids-adventures-with-ollie/id1581310942)
-- [Chinese Stories For Kids | Bedtime Stories | Exploart Podcast](https://podcasts.apple.com/us/podcast/chinese-stories-for-kids-bedtime-stories-exploart-podcast/id1736546686)
-- [The ABC Storytime Podcast](https://podcasts.apple.com/us/podcast/the-abc-storytime-podcast/id1546174165)
+- [PSLEPrep Oral Practice](https://www.psleace.sg/)
+- [CLAce PSLE Chinese Composition Practice](https://clace.sg/)
+- [Geniebook PSLE Chinese Composition Phrases](https://geniebook.com/us/exam-preparation/psle/article/psle-chinese-composition-phrases-to-level-up-writing)
 
 ---
 
