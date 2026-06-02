@@ -1,6 +1,274 @@
 const STORAGE_KEY = "nihaoBuddyLearningData";
 const CURRENT_USER_KEY = "nihaoBuddyCurrentUser";
 const MAX_VISIBLE_CARDS = 120;
+const ENGLISH_HINTS = {
+  "克服": "overcome",
+  "锻炼": "exercise; train",
+  "严格": "strict",
+  "勤劳": "hard-working",
+  "懒惰": "lazy",
+  "计划": "plan",
+  "托付": "entrust",
+  "艳丽": "bright and beautiful",
+  "水滴": "water drop",
+  "埋头": "bury one's head in work",
+  "暴雨": "heavy rain",
+  "狂风": "strong wind",
+  "榜样": "role model",
+  "压力": "pressure",
+  "梦想": "dream",
+  "复习": "revise",
+  "勇敢": "brave",
+  "风景": "scenery",
+  "吸引": "attract",
+  "颜色": "colour",
+  "一阵": "a short burst",
+  "衣服": "clothes",
+  "小鱼": "small fish",
+  "雨水": "rainwater",
+  "一心一意": "wholeheartedly",
+  "一清二楚": "very clear",
+  "五颜六色": "colourful",
+  "耳朵": "ear",
+  "牙齿": "teeth",
+  "开口": "speak up",
+  "助人为乐": "enjoy helping others",
+  "木屋": "wooden house",
+  "土地": "land",
+  "马上": "immediately",
+  "嘴巴": "mouth",
+  "你好": "hello",
+  "我们": "we; us",
+  "他们": "they; them",
+  "弟弟": "younger brother",
+  "不怕": "not afraid",
+  "爸爸": "father",
+  "妈妈": "mother",
+  "女孩": "girl",
+  "儿子": "son",
+  "努力": "work hard",
+  "河水": "river water",
+  "禾苗": "seedling",
+  "天气": "weather",
+  "哥哥": "older brother",
+  "七彩": "rainbow-coloured",
+  "过去": "the past",
+  "日子": "days",
+  "石头": "stone",
+  "写字": "write characters",
+  "车站": "bus stop; station",
+  "读书": "read; study",
+  "高山": "high mountain",
+  "山羊": "goat",
+  "草地": "grass field",
+  "阳光": "sunshine",
+  "老师": "teacher",
+  "安全": "safety",
+  "外面": "outside",
+  "美丽": "beautiful",
+  "新年": "new year",
+  "亲切": "kind",
+  "帮助": "help",
+  "幸福": "happiness",
+  "花朵": "flower",
+  "身体": "body",
+  "朋友": "friend",
+  "友爱": "friendship; kindness",
+  "科学": "science",
+  "希望": "hope",
+  "愿望": "wish",
+  "军人": "soldier",
+  "练习": "practice",
+  "心愿": "wish",
+  "诚实": "honest",
+  "翻开": "open a book",
+  "记住": "remember",
+  "信心": "confidence",
+  "健康": "healthy",
+  "解决": "solve",
+  "预习": "preview lesson",
+  "广播": "broadcast",
+  "继续": "continue",
+  "精彩": "wonderful",
+  "交换": "exchange",
+  "掌声": "applause",
+  "疲倦": "tired",
+  "建议": "suggestion",
+  "尊敬": "respect",
+  "后悔": "regret",
+  "负责": "responsible",
+  "露营": "camping",
+  "探索": "explore",
+  "独立": "independent",
+  "珍贵": "precious",
+  "竞争": "competition",
+  "合作": "cooperate",
+  "正确": "correct",
+  "烦恼": "worry",
+  "珍惜": "cherish",
+  "劳动": "labour; work",
+  "验证": "verify",
+  "惰性": "inertia; laziness",
+  "临时": "temporary",
+  "孙中山": "Sun Yat-sen",
+  "牵引": "pull; tow",
+  "促进": "promote",
+  "庭长": "chief judge",
+  "谐振": "resonance",
+  "拨款": "allocate funds",
+  "智慧": "wisdom",
+  "闯王": "rebel king",
+  "斜眼": "squint",
+  "迅速": "quick; rapid",
+  "踩踏": "step on",
+  "眯缝": "squint",
+  "呀呀": "babbling sound",
+  "挡住": "block",
+  "唇舌": "lips and tongue",
+  "忆及": "recall",
+  "趣味": "interest; fun",
+  "贴金": "decorate; glorify",
+  "共同": "together; common",
+  "陪同": "accompany",
+  "歪曲": "distort",
+  "蒸发": "evaporate",
+  "脆弱": "fragile",
+  "煎熬": "suffering",
+  "赠送": "give as a gift",
+  "咸宁": "Xianning",
+  "粥样": "porridge-like",
+  "粒子": "particle",
+  "仿佛": "as if",
+  "例如": "for example",
+  "毒性": "toxicity",
+  "财产": "property",
+  "夺取": "seize",
+  "彼此": "each other",
+  "劲力": "strength",
+  "伟大": "great",
+  "慧眼": "sharp insight",
+  "炸弹": "bomb",
+  "烤鱼": "grilled fish",
+  "苗族": "Miao ethnic group",
+  "盘旋": "circle; hover",
+  "瘦子": "thin person",
+  "汁液": "juice; liquid",
+  "除了": "besides; except",
+  "争取": "strive for",
+  "断裂": "break; fracture",
+  "珠江": "Pearl River",
+  "链接": "link",
+  "货币": "currency",
+  "宜昌": "Yichang",
+  "质量": "quality",
+  "销售": "sell; sales",
+  "售价": "selling price",
+  "损失": "loss",
+  "修改": "revise; modify",
+  "趟马": "horse-riding move",
+  "匆匆": "hurriedly",
+  "扰乱": "disturb",
+  "普通": "ordinary",
+  "趁机": "take the chance",
+  "慈禧": "Empress Dowager Cixi",
+  "祥和": "peaceful",
+  "价值": "value",
+  "量子": "quantum",
+  "理论": "theory",
+  "套餐": "set meal; package",
+  "弯曲": "bend",
+  "腰间": "waist",
+  "随着": "along with",
+  "示威": "demonstrate",
+  "反对": "oppose",
+  "择优": "choose the best",
+  "述说": "tell; describe",
+  "呈现": "present; show",
+  "式样": "style; pattern",
+  "创造": "create",
+  "肥沃": "fertile",
+  "性质": "nature; property",
+  "贪污": "corruption",
+  "砸烂": "smash",
+  "碎片": "fragment",
+  "镇压": "suppress",
+  "锤炼": "temper; refine",
+  "聋哑": "deaf-mute",
+  "糟糕": "terrible",
+  "捂住": "cover with hand",
+  "塞外": "beyond the Great Wall",
+  "捞钱": "make money unfairly",
+  "达到": "reach",
+  "垃圾": "rubbish",
+  "铃声": "ringing sound",
+  "院长": "principal; director",
+  "搬运": "move; carry",
+  "笨重": "heavy and clumsy",
+  "也许": "perhaps",
+  "她们": "they; them (female)",
+  "的话": "if; words",
+  "父亲": "father",
+  "母亲": "mother",
+  "立即": "immediately",
+  "米粉": "rice noodles",
+  "和平": "peace",
+  "几个": "several",
+  "了解": "understand",
+  "个人": "person; individual",
+  "句子": "sentence",
+  "可以": "can; may",
+  "以及": "as well as",
+  "子女": "children",
+  "四个": "four",
+  "十分": "very",
+  "士兵": "soldier",
+  "只要": "as long as",
+  "把握": "grasp",
+  "尺寸": "size",
+  "是否": "whether",
+  "出来": "come out",
+  "自己": "oneself",
+  "己方": "one's own side",
+  "它们": "they; them (things)",
+  "吃饭": "eat a meal",
+  "毛泽东": "Mao Zedong",
+  "太阳": "sun",
+  "王朝": "dynasty",
+  "三个": "three",
+  "伞兵": "paratrooper",
+  "包括": "include",
+  "早已": "already",
+  "半天": "half a day",
+  "奶奶": "grandmother",
+  "玩具": "toy",
+  "具有": "have; possess",
+  "鸟类": "birds",
+  "田地": "field",
+  "象征": "symbolise",
+  "家庭": "family",
+  "网络": "network",
+  "在于": "lie in",
+  "里面": "inside",
+  "上海": "Shanghai",
+  "下来": "come down",
+  "大学": "university",
+  "小时": "hour",
+  "哭声": "crying sound",
+  "笑容": "smile",
+  "男人": "man",
+  "爷爷": "grandfather",
+  "姐姐": "older sister",
+  "果然": "as expected",
+  "开始": "begin",
+  "瓜分": "divide up",
+  "火箭": "rocket",
+  "叶子": "leaf",
+  "面积": "area",
+  "关系": "relationship",
+  "两个": "two",
+  "片刻": "a moment",
+  "画家": "painter"
+};
 const USERS = {
   enzo: {
     username: "enzo",
@@ -206,6 +474,48 @@ function getLesson(word) {
 
 function getQuizPrompt(word) {
   return `Find: ${word.pinyin || "listen"}`;
+}
+
+function escapeHTML(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function highlightTarget(text, char) {
+  const safeText = escapeHTML(text);
+  const safeChar = escapeHTML(char);
+  return safeText.replaceAll(safeChar, `<strong>${safeChar}</strong>`);
+}
+
+function stripLabel(text, label) {
+  return String(text || "").replace(label, "").trim();
+}
+
+function makeChallengeCombo(word) {
+  const char = word.char;
+  const phrase = word.phrase && word.phrase.includes(char) ? word.phrase : `${char}${word.phrase || ""}`;
+  const sentence = stripLabel(word.good_sentence, "好句：");
+  const shortSentence = sentence.includes(char) ? sentence : `${phrase}可以帮助我记住${char}。`;
+  const pieces = [
+    phrase,
+    `${phrase}${char}`,
+    shortSentence
+  ];
+  let combo = pieces.join(" · ");
+
+  while ((combo.match(new RegExp(char, "g")) || []).length < 3) {
+    combo += ` · ${char}`;
+  }
+
+  return combo;
+}
+
+function getEnglishHint(word) {
+  return ENGLISH_HINTS[word.phrase] || "phrase practice";
 }
 
 function chooseChineseVoice() {
@@ -585,14 +895,18 @@ function setChallengeQuestion() {
   choices.forEach(choice => {
     const button = document.createElement("button");
     button.type = "button";
-    button.textContent = choice.char;
+    button.className = "challenge-option";
+    button.innerHTML = `
+      <span class="combo-line">${highlightTarget(makeChallengeCombo(choice), choice.char)}</span>
+      <span class="combo-meta">${escapeHTML(choice.pinyin || "")} · English: ${escapeHTML(getEnglishHint(choice))}</span>
+    `;
     button.addEventListener("click", () => {
       if (wordKey(choice) === wordKey(state.challengeAnswer)) {
         state.challengeScore += 1;
-        els.challengeFeedback.textContent = "Nice. Keep going.";
+        els.challengeFeedback.textContent = `Nice. ${state.challengeAnswer.char} appears again and again in the phrase combo.`;
         addPoints(3);
       } else {
-        els.challengeFeedback.textContent = `Missed: ${state.challengeAnswer.char}`;
+        els.challengeFeedback.textContent = `Missed: find the combo with ${state.challengeAnswer.char}.`;
         state.progress.mistakes[wordKey(state.challengeAnswer)] = {
           ...state.challengeAnswer,
           misses: (state.progress.mistakes[wordKey(state.challengeAnswer)]?.misses || 0) + 1
