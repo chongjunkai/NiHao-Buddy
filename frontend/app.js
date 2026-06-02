@@ -514,6 +514,12 @@ function makeChallengeCombo(word) {
   return combo;
 }
 
+function makeMixedChallengeText(word) {
+  const combo = makeChallengeCombo(word);
+  const pinyin = word.pinyin ? `(${word.pinyin})` : "";
+  return shuffle([combo, pinyin]).filter(Boolean).join(" · ");
+}
+
 function getEnglishHint(word) {
   return ENGLISH_HINTS[word.phrase] || "phrase practice";
 }
@@ -889,7 +895,10 @@ function setChallengeQuestion() {
   ]);
 
   state.challengeAnswer = answer;
-  els.challengeTarget.textContent = answer.char;
+  els.challengeTarget.innerHTML = `
+    <span class="target-char">${escapeHTML(answer.char)}</span>
+    <span class="target-meaning">${escapeHTML(getEnglishHint(answer))}</span>
+  `;
   els.challengeOptions.innerHTML = "";
 
   choices.forEach(choice => {
@@ -897,8 +906,7 @@ function setChallengeQuestion() {
     button.type = "button";
     button.className = "challenge-option";
     button.innerHTML = `
-      <span class="combo-line">${highlightTarget(makeChallengeCombo(choice), choice.char)}</span>
-      <span class="combo-meta">${escapeHTML(choice.pinyin || "")} · English: ${escapeHTML(getEnglishHint(choice))}</span>
+      <span class="combo-line">${escapeHTML(makeMixedChallengeText(choice))}</span>
     `;
     button.addEventListener("click", () => {
       if (wordKey(choice) === wordKey(state.challengeAnswer)) {

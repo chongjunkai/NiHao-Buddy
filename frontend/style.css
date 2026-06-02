@@ -906,35 +906,36 @@ h1 {
 
 .option-grid .challenge-option {
   display: grid;
-  gap: 8px;
   min-height: 112px;
   text-align: left;
 }
 
 .combo-line {
   color: #2b3658;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 900;
   line-height: 1.45;
 }
 
-.combo-line strong {
-  background: #fff176;
-  border: 3px solid var(--line);
-  border-radius: 10px;
+.target-char {
   color: var(--red);
   display: inline-block;
-  font-size: 28px;
+  font-size: 38px;
+  font-weight: 900;
   line-height: 1;
-  margin: 0 2px;
-  padding: 2px 5px;
   text-shadow: 2px 2px 0 #ffffff;
 }
 
-.combo-meta {
+.target-meaning {
   color: var(--muted);
-  font-size: 14px;
+  display: inline-block;
+  font-size: 13px;
   font-weight: 900;
+  line-height: 1.25;
+  margin-left: 8px;
+  max-width: 110px;
+  vertical-align: middle;
+  text-transform: uppercase;
 }
 
 .feedback {
