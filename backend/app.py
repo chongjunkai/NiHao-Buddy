@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from pypinyin import Style, lazy_pinyin
+from functools import lru_cache
 import jieba
 import sqlite3, os, csv
 from urllib.parse import quote
@@ -140,6 +141,7 @@ PREFERRED_HELPERS = {
     "颜": ("颜色", "天空的颜色从蓝色慢慢变成橙色。"),
     "阵": ("一阵", "一阵微风吹来，让人觉得很舒服。"),
 }
+PHRASE_CHOICES_BY_CHAR = None
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -163,27 +165,39 @@ def import_csv_file(conn, csv_path):
                 )
             )
 
+def phrase_choices_by_char():
+    global PHRASE_CHOICES_BY_CHAR
+    if PHRASE_CHOICES_BY_CHAR is not None:
+        return PHRASE_CHOICES_BY_CHAR
+
+    choices = {}
+    for phrase, freq in jieba.dt.FREQ.items():
+        if (
+            2 <= len(phrase) <= 4
+            and HAN_RE.match(phrase)
+            and phrase not in PHRASE_BLOCKLIST
+        ):
+            shorter_bonus = 4 - len(phrase)
+            for char in set(phrase):
+                starts_with_char = 1 if phrase.startswith(char) else 0
+                score = freq + starts_with_char * 500000 + shorter_bonus * 100
+                choices.setdefault(char, []).append((score, phrase))
+
+    for char_choices in choices.values():
+        char_choices.sort(reverse=True)
+
+    PHRASE_CHOICES_BY_CHAR = choices
+    return PHRASE_CHOICES_BY_CHAR
+
+@lru_cache(maxsize=1024)
 def choose_phrase(char):
     if char in PREFERRED_HELPERS:
         return PREFERRED_HELPERS[char][0]
 
-    candidates = []
-    for phrase, freq in jieba.dt.FREQ.items():
-        if (
-            char in phrase
-            and 2 <= len(phrase) <= 4
-            and HAN_RE.match(phrase)
-            and phrase not in PHRASE_BLOCKLIST
-        ):
-            starts_with_char = 1 if phrase.startswith(char) else 0
-            shorter_bonus = 4 - len(phrase)
-            score = freq + starts_with_char * 500000 + shorter_bonus * 100
-            candidates.append((score, phrase))
-
+    candidates = phrase_choices_by_char().get(char, [])
     if not candidates:
         return f"{char}的词语"
 
-    candidates.sort(reverse=True)
     return candidates[0][1]
 
 def good_sentence(char, phrase):

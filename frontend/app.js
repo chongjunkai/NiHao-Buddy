@@ -1,4 +1,25 @@
 const STORAGE_KEY = "nihaoBuddyLearningData";
+const CURRENT_USER_KEY = "nihaoBuddyCurrentUser";
+const MAX_VISIBLE_CARDS = 120;
+const USERS = {
+  enzo: {
+    username: "enzo",
+    password: "enzo123",
+    displayName: "Enzo",
+    age: 12,
+    defaultGrade: "6",
+    description: "P6 quest path"
+  },
+  enya: {
+    username: "enya",
+    password: "enya123",
+    displayName: "Enya",
+    age: 6,
+    defaultGrade: "1",
+    description: "Age 6, P1 starter path"
+  }
+};
+
 function todayKey() {
   const now = new Date();
   const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -6,19 +27,8 @@ function todayKey() {
   return `${now.getFullYear()}-${month}-${day}`;
 }
 
-const state = {
-  grade: new URLSearchParams(window.location.search).get("grade") || "1",
-  words: [],
-  filteredWords: [],
-  quizAnswer: null,
-  challengeAnswer: null,
-  challengeWords: [],
-  challengeScore: 0,
-  challengeTime: 30,
-  challengeTimer: null,
-  podcastWords: [],
-  podcastStory: "",
-  progress: {
+function defaultProgress() {
+  return {
     points: 0,
     streak: 0,
     badges: [],
@@ -31,10 +41,35 @@ const state = {
     mastered: {},
     mistakes: {},
     saved: {}
-  }
+  };
+}
+
+const state = {
+  grade: new URLSearchParams(window.location.search).get("grade") || "1",
+  currentUser: null,
+  selectedLoginUser: "enzo",
+  words: [],
+  filteredWords: [],
+  quizAnswer: null,
+  challengeAnswer: null,
+  challengeWords: [],
+  challengeScore: 0,
+  challengeTime: 30,
+  challengeTimer: null,
+  loadToken: 0,
+  podcastWords: [],
+  podcastStory: "",
+  progress: defaultProgress()
 };
 
 const els = {
+  loginScreen: document.getElementById("login-screen"),
+  loginButton: document.getElementById("login-button"),
+  passwordInput: document.getElementById("password-input"),
+  loginFeedback: document.getElementById("login-feedback"),
+  profileName: document.getElementById("profile-name"),
+  profileMeta: document.getElementById("profile-meta"),
+  logoutButton: document.getElementById("logout-button"),
   sourceStatus: document.getElementById("source-status"),
   gradeSelect: document.getElementById("grade-select"),
   lessonFilter: document.getElementById("lesson-filter"),
@@ -78,19 +113,76 @@ function wordKey(word) {
   return `${word.grade}:${word.char}:${word.meaning}`;
 }
 
+function userStorageKey() {
+  return state.currentUser
+    ? `${STORAGE_KEY}:${state.currentUser.username}`
+    : STORAGE_KEY;
+}
+
 function loadProgress() {
-  const saved = localStorage.getItem(STORAGE_KEY);
+  state.progress = defaultProgress();
+  const saved = localStorage.getItem(userStorageKey());
   if (!saved) return;
 
   try {
-    state.progress = { ...state.progress, ...JSON.parse(saved) };
+    state.progress = { ...defaultProgress(), ...JSON.parse(saved) };
   } catch (error) {
     console.warn("Could not load saved progress", error);
   }
 }
 
 function saveProgress() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
+  if (!state.currentUser) return;
+  localStorage.setItem(userStorageKey(), JSON.stringify(state.progress));
+}
+
+function setActiveProfile(user) {
+  state.currentUser = user;
+  els.profileName.textContent = user.displayName;
+  els.profileMeta.textContent = `${user.description} · P${user.defaultGrade} default`;
+  els.loginScreen.classList.add("hidden");
+  document.body.classList.remove("login-open");
+}
+
+function showLogin() {
+  stopSpeaking();
+  clearInterval(state.challengeTimer);
+  state.currentUser = null;
+  state.progress = defaultProgress();
+  els.profileName.textContent = "Not logged in";
+  els.profileMeta.textContent = "Choose a student profile";
+  els.passwordInput.value = "";
+  els.loginFeedback.textContent = "Test passwords: enzo123 or enya123";
+  els.loginScreen.classList.remove("hidden");
+  document.body.classList.add("login-open");
+  renderProgress();
+}
+
+async function activateProfile(username, options = {}) {
+  const user = USERS[username];
+  if (!user) return;
+
+  setActiveProfile(user);
+  localStorage.setItem(CURRENT_USER_KEY, username);
+  state.grade = options.keepCurrentGrade ? state.grade : user.defaultGrade;
+  window.history.replaceState({}, "", `?grade=${state.grade}`);
+  if (els.gradeSelect.options.length) els.gradeSelect.value = state.grade;
+  loadProgress();
+  renderProgress();
+  await loadWords();
+}
+
+function loginSelectedProfile() {
+  const user = USERS[state.selectedLoginUser];
+  const password = els.passwordInput.value.trim();
+
+  if (!user || password !== user.password) {
+    els.loginFeedback.textContent = "Wrong password. Try enzo123 or enya123.";
+    els.passwordInput.focus();
+    return;
+  }
+
+  activateProfile(user.username);
 }
 
 function shuffle(items) {
@@ -329,14 +421,17 @@ function renderLessonFilter() {
 function renderFlashcards() {
   applyFilters();
   els.flashcards.innerHTML = "";
-  els.wordCount.textContent = `${state.filteredWords.length} words shown from P${state.grade}`;
+  const visibleWords = state.filteredWords.slice(0, MAX_VISIBLE_CARDS);
+  els.wordCount.textContent = state.filteredWords.length > visibleWords.length
+    ? `${state.filteredWords.length} words found from P${state.grade}; showing first ${visibleWords.length}`
+    : `${state.filteredWords.length} words shown from P${state.grade}`;
 
   if (state.filteredWords.length === 0) {
     els.flashcards.innerHTML = '<p class="empty-state">No words match this filter.</p>';
     return;
   }
 
-  state.filteredWords.forEach(word => {
+  visibleWords.forEach(word => {
     const key = wordKey(word);
     const card = document.createElement("article");
     card.className = "word-card";
@@ -640,8 +735,23 @@ async function loadGrades() {
 }
 
 async function loadWords() {
-  const response = await fetch(`/api/words?grade=${state.grade}`);
+  const gradeToLoad = state.grade;
+  const loadToken = ++state.loadToken;
+
+  state.words = [];
+  state.filteredWords = [];
+  state.podcastStory = "";
+  els.wordCount.textContent = `Loading P${gradeToLoad} words...`;
+  els.flashcards.innerHTML = '<p class="empty-state">Loading this learner\'s word quest...</p>';
+  els.quizQuestion.textContent = "Loading quiz...";
+  els.quizOptions.innerHTML = "";
+
+  const response = await fetch(`/api/words?grade=${gradeToLoad}`);
+  if (loadToken !== state.loadToken || gradeToLoad !== state.grade) return;
+
   state.words = await response.json();
+  if (loadToken !== state.loadToken || gradeToLoad !== state.grade) return;
+
   state.filteredWords = state.words;
   renderLessonFilter();
   renderAll();
@@ -651,26 +761,35 @@ async function loadWords() {
 }
 
 function resetProgress() {
-  if (!confirm("Reset all local NiHao Buddy progress?")) return;
-  localStorage.removeItem(STORAGE_KEY);
-  state.progress = {
-    points: 0,
-    streak: 0,
-    badges: [],
-    completedQuizzes: 0,
-    correctAnswers: 0,
-    quizCombo: 0,
-    listenedStories: 0,
-    challengePlays: 0,
-    lastActiveDate: "",
-    mastered: {},
-    mistakes: {},
-    saved: {}
-  };
+  const learner = state.currentUser?.displayName || "this learner";
+  if (!confirm(`Reset all local NiHao Buddy progress for ${learner}?`)) return;
+  localStorage.removeItem(userStorageKey());
+  state.progress = defaultProgress();
   renderAll();
 }
 
 function bindEvents() {
+  document.querySelectorAll(".profile-choice").forEach(button => {
+    button.addEventListener("click", () => {
+      state.selectedLoginUser = button.dataset.loginUser;
+      document.querySelectorAll(".profile-choice").forEach(choice => {
+        choice.classList.toggle("active", choice === button);
+      });
+      els.passwordInput.value = "";
+      els.loginFeedback.textContent = `Enter the password for ${USERS[state.selectedLoginUser].displayName}.`;
+      els.passwordInput.focus();
+    });
+  });
+
+  els.loginButton.addEventListener("click", loginSelectedProfile);
+  els.passwordInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") loginSelectedProfile();
+  });
+  els.logoutButton.addEventListener("click", () => {
+    localStorage.removeItem(CURRENT_USER_KEY);
+    showLogin();
+  });
+
   document.querySelectorAll(".tab-button").forEach(button => {
     button.addEventListener("click", () => showTab(button.dataset.tab));
   });
@@ -717,12 +836,16 @@ function bindEvents() {
 }
 
 async function init() {
-  loadProgress();
   bindEvents();
-  renderProgress();
   await loadSourceStatus();
   await loadGrades();
-  await loadWords();
+
+  const savedUsername = localStorage.getItem(CURRENT_USER_KEY);
+  if (savedUsername && USERS[savedUsername]) {
+    await activateProfile(savedUsername, { keepCurrentGrade: false });
+  } else {
+    showLogin();
+  }
 }
 
 init();

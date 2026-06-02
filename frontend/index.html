@@ -7,6 +7,32 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <section id="login-screen" class="login-screen" aria-label="Student login">
+    <article class="login-card">
+      <p class="eyebrow">Student Login</p>
+      <h1>Choose Your Buddy</h1>
+      <p class="login-intro">Each learner gets their own level, streaks, saved words, mistakes, and badges.</p>
+
+      <div class="profile-choice-grid" aria-label="Demo student profiles">
+        <button class="profile-choice active" type="button" data-login-user="enzo">
+          <strong>Enzo</strong>
+          <span>P6 quest path</span>
+          <small>Username: enzo</small>
+        </button>
+        <button class="profile-choice" type="button" data-login-user="enya">
+          <strong>Enya</strong>
+          <span>Age 6, P1 starter path</span>
+          <small>Username: enya</small>
+        </button>
+      </div>
+
+      <label class="login-label" for="password-input">Password</label>
+      <input id="password-input" class="login-input" type="password" placeholder="Enter password" autocomplete="current-password">
+      <button id="login-button" class="primary-button login-button" type="button">Start Learning</button>
+      <p id="login-feedback" class="login-feedback">Test passwords: enzo123 or enya123</p>
+    </article>
+  </section>
+
   <div class="cartoon-bg" aria-hidden="true">
     <span class="sticker sticker-book">书</span>
     <span class="sticker sticker-star">★</span>
@@ -60,6 +86,13 @@
       <div class="sidebar-title">
         <strong>Quest Map</strong>
         <span>Choose your training zone</span>
+      </div>
+
+      <div class="profile-panel">
+        <span>Active Learner</span>
+        <strong id="profile-name">Not logged in</strong>
+        <small id="profile-meta">Choose a student profile</small>
+        <button id="logout-button" class="secondary-button" type="button">Switch User</button>
       </div>
 
       <div class="field-group">

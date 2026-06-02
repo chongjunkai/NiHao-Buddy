@@ -77,6 +77,9 @@ The current prototype includes:
 - Podcast Room for 磨耳朵 listening practice, using browser speech to read Chinese stories containing current vocabulary words
 - More engaging bedtime-style listening stories with child-friendly pacing, higher-pitched browser speech, and repeated vocabulary exposure
 - External Mandarin story podcast links for extra bedtime listening without storing large audio files locally
+- Student profile login for individual progress tracking
+- Two demo learner profiles: Enzo starts on P6 content, while Enya is age 6 and starts on P1 content
+- Separate local progress records for each learner, including points, streaks, mistakes, saved words, badges, and listening history
 - Quiz-based learning to test recognition of Chinese characters
 - Points, rewards, badges, streaks, and progress tracking
 - Working mission progress cards for word learning, quiz practice, speed challenge, and listening practice
@@ -91,6 +94,19 @@ The current prototype includes:
 
 
 This working prototype helped me turn my original idea into something that can be tested, improved, and explained. It shows how I used coding and AI-assisted development to solve a real learning problem from my own life.
+
+---
+
+## Demo Student Profiles
+
+The app now includes a simple local student login so different learners can keep their own progress. This is a prototype login for testing and demonstration, not a production security system.
+
+| Student | Username | Password | Default Content |
+| --- | --- | --- | --- |
+| Enzo | `enzo` | `enzo123` | P6 vocabulary |
+| Enya | `enya` | `enya123` | P1 vocabulary, age 6 starter path |
+
+This helps show how NiHao Buddy can become more personalised for different students in the same family or classroom.
 
 ---
 
