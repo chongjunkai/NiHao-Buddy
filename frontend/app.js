@@ -522,7 +522,11 @@ function makeMixedChallengeText(word) {
 }
 
 function getEnglishHint(word) {
-  return ENGLISH_HINTS[word.phrase] || "phrase practice";
+  return ENGLISH_HINTS[word.phrase] || "";
+}
+
+function wordsWithEnglishHints(words) {
+  return words.filter(word => getEnglishHint(word));
 }
 
 function chooseChineseVoice() {
@@ -889,7 +893,7 @@ function renderCollection() {
 function setChallengeQuestion() {
   if (state.challengeWords.length < 4) return;
 
-  const answer = shuffle(state.challengeWords)[0];
+  const answer = shuffle(wordsWithEnglishHints(state.challengeWords))[0];
   const targetCount = 3 + Math.floor(Math.random() * 3);
   const tileCount = 10 + Math.floor(Math.random() * 11);
   const distractors = shuffle(state.challengeWords.filter(word => wordKey(word) !== wordKey(answer)))
@@ -950,7 +954,9 @@ function startChallenge() {
   clearInterval(state.challengeTimer);
   state.progress.challengePlays = (state.progress.challengePlays || 0) + 1;
   addPoints(2);
-  state.challengeWords = shuffle(state.filteredWords.length >= 4 ? state.filteredWords : state.words).slice(0, 40);
+  const sourceWords = state.filteredWords.length >= 4 ? state.filteredWords : state.words;
+  const hintedWords = wordsWithEnglishHints(sourceWords);
+  state.challengeWords = shuffle(hintedWords).slice(0, 40);
   state.challengeScore = 0;
   state.challengeTime = 30;
   els.challengeScore.textContent = "0";
@@ -958,7 +964,7 @@ function startChallenge() {
   els.challengeFeedback.textContent = "";
 
   if (state.challengeWords.length < 4) {
-    els.challengeFeedback.textContent = "Need at least four words to start.";
+    els.challengeFeedback.textContent = "Need at least four words with English meanings to start.";
     return;
   }
 
