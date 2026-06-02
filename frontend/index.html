@@ -46,7 +46,7 @@
       </div>
       <div>
         <span id="streak">0</span>
-        <small>combo streak</small>
+        <small>day streak</small>
       </div>
       <div>
         <span id="mastered-count">0</span>
@@ -94,21 +94,29 @@
 
     <section class="content">
       <section class="mission-strip" aria-label="Learning tools">
-        <article>
+        <article class="mission-card" data-tab-target="learn" data-mission="word">
           <strong>Mission 1</strong>
           <span>Flip through word cards and collect useful phrases.</span>
+          <div class="mission-progress"><i id="mission-word-bar"></i></div>
+          <small id="mission-word-status">0/5 words cleared</small>
         </article>
-        <article>
+        <article class="mission-card" data-tab-target="review" data-mission="review">
           <strong>Mission 2</strong>
           <span>Fix mistakes so weak words come back for review.</span>
+          <div class="mission-progress"><i id="mission-review-bar"></i></div>
+          <small id="mission-review-status">0/3 quiz answers</small>
         </article>
-        <article>
+        <article class="mission-card" data-tab-target="challenge" data-mission="challenge">
           <strong>Mission 3</strong>
           <span>Build a streak, win badges, and try speed mode.</span>
+          <div class="mission-progress"><i id="mission-challenge-bar"></i></div>
+          <small id="mission-challenge-status">0/1 speed run</small>
         </article>
-        <article>
+        <article class="mission-card" data-tab-target="podcast" data-mission="listen">
           <strong>Mission 4</strong>
           <span>Listen to vocabulary stories for 磨耳朵 practice.</span>
+          <div class="mission-progress"><i id="mission-listen-bar"></i></div>
+          <small id="mission-listen-status">0/1 story listened</small>
         </article>
       </section>
 
@@ -247,6 +255,9 @@
             <dl class="stats-list">
               <div><dt>Quizzes completed</dt><dd id="completed-quizzes">0</dd></div>
               <div><dt>Correct answers</dt><dd id="correct-answers">0</dd></div>
+              <div><dt>Daily streak</dt><dd id="daily-streak">0</dd></div>
+              <div><dt>Quiz combo</dt><dd id="quiz-combo">0</dd></div>
+              <div><dt>Stories listened</dt><dd id="stories-listened">0</dd></div>
               <div><dt>Mistakes to review</dt><dd id="mistake-count">0</dd></div>
               <div><dt>Saved words</dt><dd id="saved-count">0</dd></div>
             </dl>

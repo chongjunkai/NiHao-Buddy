@@ -75,9 +75,11 @@ The current prototype includes:
 - Flashcards with Chinese characters, pinyin, meanings, useful phrases, and good sentences
 - Audio support using browser speech and external sound links
 - Podcast Room for 磨耳朵 listening practice, using browser speech to read Chinese stories containing current vocabulary words
+- More engaging bedtime-style listening stories with child-friendly pacing, higher-pitched browser speech, and repeated vocabulary exposure
 - External Mandarin story podcast links for extra bedtime listening without storing large audio files locally
 - Quiz-based learning to test recognition of Chinese characters
 - Points, rewards, badges, streaks, and progress tracking
+- Working mission progress cards for word learning, quiz practice, speed challenge, and listening practice
 - A mistake review system that helps students revise words they got wrong
 - A personal vocabulary collection for saving useful words
 - Recommended revision based on saved words and quiz mistakes
@@ -96,7 +98,7 @@ This working prototype helped me turn my original idea into something that can b
 
 I added a Podcast Room because language learning starts with listening. Before students can speak, read, and write well, they need to hear the language many times, similar to how babies first learn by listening and copying.
 
-The Podcast Room creates short Chinese listening stories using words from the selected P1 to P6 vocabulary level. Students can close their eyes and listen to the story being read aloud by the browser. This supports 磨耳朵 practice and can also be used at bedtime, so learning can continue in a relaxed way.
+The Podcast Room creates short Chinese listening stories using words from the selected P1 to P6 vocabulary level. Students can close their eyes and listen to the story being read aloud by the browser. The app chooses a Chinese browser voice when available and uses a slightly higher pitch with slower pacing to make the story sound more child-friendly. This supports 磨耳朵 practice and can also be used at bedtime, so learning can continue in a relaxed way.
 
 ![NiHao Buddy Podcast Room screenshot](assets/screenshots/nihao-buddy-podcast-room.jpg)
 

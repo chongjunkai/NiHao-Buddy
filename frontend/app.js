@@ -1,4 +1,10 @@
 const STORAGE_KEY = "nihaoBuddyLearningData";
+function todayKey() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+}
 
 const state = {
   grade: new URLSearchParams(window.location.search).get("grade") || "1",
@@ -18,6 +24,10 @@ const state = {
     badges: [],
     completedQuizzes: 0,
     correctAnswers: 0,
+    quizCombo: 0,
+    listenedStories: 0,
+    challengePlays: 0,
+    lastActiveDate: "",
     mastered: {},
     mistakes: {},
     saved: {}
@@ -43,11 +53,22 @@ const els = {
   challengeFeedback: document.getElementById("challenge-feedback"),
   podcastWords: document.getElementById("podcast-words"),
   podcastStory: document.getElementById("podcast-story"),
+  missionWordBar: document.getElementById("mission-word-bar"),
+  missionWordStatus: document.getElementById("mission-word-status"),
+  missionReviewBar: document.getElementById("mission-review-bar"),
+  missionReviewStatus: document.getElementById("mission-review-status"),
+  missionChallengeBar: document.getElementById("mission-challenge-bar"),
+  missionChallengeStatus: document.getElementById("mission-challenge-status"),
+  missionListenBar: document.getElementById("mission-listen-bar"),
+  missionListenStatus: document.getElementById("mission-listen-status"),
   points: document.getElementById("points"),
   streak: document.getElementById("streak"),
   masteredCount: document.getElementById("mastered-count"),
   completedQuizzes: document.getElementById("completed-quizzes"),
   correctAnswers: document.getElementById("correct-answers"),
+  dailyStreak: document.getElementById("daily-streak"),
+  quizCombo: document.getElementById("quiz-combo"),
+  storiesListened: document.getElementById("stories-listened"),
   mistakeCount: document.getElementById("mistake-count"),
   savedCount: document.getElementById("saved-count"),
   badges: document.getElementById("badges")
@@ -76,19 +97,47 @@ function shuffle(items) {
   return [...items].sort(() => Math.random() - 0.5);
 }
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function daysBetween(firstDate, secondDate) {
+  const first = new Date(`${firstDate}T00:00:00`);
+  const second = new Date(`${secondDate}T00:00:00`);
+  return Math.round((second - first) / 86400000);
+}
+
 function getLesson(word) {
   const match = word.meaning.match(/第(\d+)课/);
   return match ? match[1] : "other";
 }
 
-function speak(text) {
+function chooseChineseVoice() {
+  if (!("speechSynthesis" in window)) return null;
+
+  const voices = speechSynthesis.getVoices();
+  const chineseVoices = voices.filter(voice => /^zh/i.test(voice.lang));
+  const childLikeNames = ["xiaoxiao", "xiaoyi", "meijia", "ting-ting", "tingting", "sin-ji", "mei-jia"];
+
+  return chineseVoices.find(voice =>
+    childLikeNames.some(name => voice.name.toLowerCase().includes(name))
+  ) || chineseVoices.find(voice => voice.lang === "zh-CN") || chineseVoices[0] || null;
+}
+
+function speak(text, options = {}) {
   if (!("speechSynthesis" in window)) return;
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "zh-CN";
-  utterance.rate = 0.85;
+  utterance.voice = chooseChineseVoice();
+  utterance.pitch = options.pitch || 1.18;
+  utterance.rate = options.rate || 0.9;
   speechSynthesis.cancel();
   speechSynthesis.speak(utterance);
+}
+
+if ("speechSynthesis" in window) {
+  speechSynthesis.onvoiceschanged = chooseChineseVoice;
 }
 
 function stopSpeaking() {
@@ -99,7 +148,23 @@ function openSoundLink(word) {
   window.open(word.sound_url, "_blank", "noopener");
 }
 
+function recordActivity() {
+  const today = todayKey();
+  const lastActive = state.progress.lastActiveDate;
+
+  if (lastActive === today) return;
+
+  if (lastActive && daysBetween(lastActive, today) === 1) {
+    state.progress.streak += 1;
+  } else {
+    state.progress.streak = 1;
+  }
+
+  state.progress.lastActiveDate = today;
+}
+
 function addPoints(amount) {
+  recordActivity();
   state.progress.points += amount;
   checkBadges();
   saveProgress();
@@ -130,12 +195,12 @@ function recordQuizAnswer(word, isCorrect) {
 
   if (isCorrect) {
     state.progress.correctAnswers += 1;
-    state.progress.streak += 1;
+    state.progress.quizCombo = (state.progress.quizCombo || 0) + 1;
     state.progress.mastered[wordKey(word)] = word;
     delete state.progress.mistakes[wordKey(word)];
     addPoints(10);
   } else {
-    state.progress.streak = 0;
+    state.progress.quizCombo = 0;
     state.progress.mistakes[wordKey(word)] = {
       ...word,
       misses: (state.progress.mistakes[wordKey(word)]?.misses || 0) + 1
@@ -155,8 +220,10 @@ function checkBadges() {
 
   if (state.progress.points >= 50) add("Vocabulary Starter");
   if (state.progress.points >= 150) add("Chinese Explorer");
-  if (state.progress.streak >= 5) add("Streak Builder");
+  if (state.progress.streak >= 3) add("3-Day Listener");
+  if ((state.progress.quizCombo || 0) >= 5) add("Combo Builder");
   if (state.progress.correctAnswers >= 20) add("Quiz Master");
+  if ((state.progress.listenedStories || 0) >= 3) add("Podcast Explorer");
   if (Object.keys(state.progress.saved).length >= 10) add("Collector");
   if (Object.keys(state.progress.mastered).length >= 30) add("Character Champion");
 }
@@ -167,6 +234,9 @@ function renderProgress() {
   els.masteredCount.textContent = Object.keys(state.progress.mastered).length;
   els.completedQuizzes.textContent = state.progress.completedQuizzes;
   els.correctAnswers.textContent = state.progress.correctAnswers;
+  els.dailyStreak.textContent = state.progress.streak;
+  els.quizCombo.textContent = state.progress.quizCombo || 0;
+  els.storiesListened.textContent = state.progress.listenedStories || 0;
   els.mistakeCount.textContent = Object.keys(state.progress.mistakes).length;
   els.savedCount.textContent = Object.keys(state.progress.saved).length;
 
@@ -181,6 +251,54 @@ function renderProgress() {
     li.textContent = badge;
     els.badges.appendChild(li);
   });
+
+  renderMissions();
+}
+
+function updateMission(bar, status, current, target, doneText, progressText) {
+  const progress = clamp(current / target, 0, 1);
+  bar.style.width = `${progress * 100}%`;
+  status.textContent = progress >= 1 ? doneText : progressText;
+}
+
+function renderMissions() {
+  const masteredCount = Object.keys(state.progress.mastered).length;
+  const quizCount = state.progress.completedQuizzes;
+  const challengeCount = state.progress.challengePlays || 0;
+  const listenCount = state.progress.listenedStories || 0;
+
+  updateMission(
+    els.missionWordBar,
+    els.missionWordStatus,
+    masteredCount,
+    5,
+    "Mission cleared: 5 words learned",
+    `${Math.min(masteredCount, 5)}/5 words cleared`
+  );
+  updateMission(
+    els.missionReviewBar,
+    els.missionReviewStatus,
+    quizCount,
+    3,
+    "Mission cleared: quiz training done",
+    `${Math.min(quizCount, 3)}/3 quiz answers`
+  );
+  updateMission(
+    els.missionChallengeBar,
+    els.missionChallengeStatus,
+    challengeCount,
+    1,
+    "Mission cleared: speed run tried",
+    `${Math.min(challengeCount, 1)}/1 speed run`
+  );
+  updateMission(
+    els.missionListenBar,
+    els.missionListenStatus,
+    listenCount,
+    1,
+    "Mission cleared: story listened",
+    `${Math.min(listenCount, 1)}/1 story listened`
+  );
 }
 
 function applyFilters() {
@@ -391,6 +509,8 @@ function setChallengeQuestion() {
 
 function startChallenge() {
   clearInterval(state.challengeTimer);
+  state.progress.challengePlays = (state.progress.challengePlays || 0) + 1;
+  addPoints(2);
   state.challengeWords = shuffle(state.filteredWords.length >= 4 ? state.filteredWords : state.words).slice(0, 40);
   state.challengeScore = 0;
   state.challengeTime = 30;
@@ -404,6 +524,7 @@ function startChallenge() {
   }
 
   setChallengeQuestion();
+  renderMissions();
   state.challengeTimer = setInterval(() => {
     state.challengeTime -= 1;
     els.challengeTime.textContent = state.challengeTime;
@@ -424,7 +545,7 @@ function startChallenge() {
 
 function buildPodcastStory() {
   const pool = state.filteredWords.length >= 6 ? state.filteredWords : state.words;
-  state.podcastWords = shuffle(pool).slice(0, 8);
+  state.podcastWords = shuffle(pool).slice(0, 6);
 
   if (state.podcastWords.length === 0) {
     state.podcastStory = "请先选择一个年级，然后再开始听故事。";
@@ -435,19 +556,18 @@ function buildPodcastStory() {
   const phrases = state.podcastWords
     .map(word => word.phrase)
     .filter(Boolean)
-    .slice(0, 5)
-    .join("、");
-  const sentenceLines = state.podcastWords
     .slice(0, 4)
-    .map(word => (word.good_sentence || "").replace(/^好句：/, ""))
-    .filter(Boolean);
+    .join("、");
+  const [hero, friend, place, clue, action, treasure] = state.podcastWords;
+  const sentence = word => (word?.good_sentence || "").replace(/^好句：/, "");
 
   state.podcastStory = [
-    `睡前中文小播客开始了。今天我们要听的词有：${chars}。`,
-    `请你闭上眼睛，慢慢听。先听声音，再想意思。`,
-    `在 NiHao Buddy 的词语乐园里，小伙伴把这些好词放进背包：${phrases || chars}。`,
-    ...sentenceLines,
-    `听完以后，你可以轻轻读一遍：${chars}。学习语言就像小宝宝一样，先多听，再模仿说，最后再读和写。晚安，明天继续完成新的中文任务。`
+    `欢迎来到 NiHao Buddy 睡前小播客。请闭上眼睛，慢慢呼吸。今天的魔法词是：${chars}。`,
+    `小小探险家带着「${hero.char}」和「${friend.char}」出发了。他们走进一个会发光的词语森林，听见树叶轻轻地说：${phrases || chars}。`,
+    `忽然，一张任务卡飘了下来。卡上写着：${sentence(place) || `请找到藏着「${place.char}」的地方。`}`,
+    `探险家仔细听，认真想。他发现「${clue.char}」是线索，「${action.char}」是动作，「${treasure.char}」是宝物。`,
+    `他轻轻念：${hero.char}，${friend.char}，${place.char}，${clue.char}，${action.char}，${treasure.char}。声音像小星星一样，一颗一颗落进心里。`,
+    `故事结束前，我们再听一次：${chars}。先听，再说；先模仿，再读写。晚安，明天继续完成新的中文任务。`
   ].join("\n\n");
 }
 
@@ -466,8 +586,10 @@ function renderPodcast() {
 
 function playPodcast() {
   if (!state.podcastStory) buildPodcastStory();
-  speak(state.podcastStory);
+  state.progress.listenedStories = (state.progress.listenedStories || 0) + 1;
+  speak(state.podcastStory, { pitch: 1.28, rate: 0.82 });
   addPoints(4);
+  renderMissions();
 }
 
 function showTab(tabName) {
@@ -485,6 +607,7 @@ function renderAll() {
   renderReview();
   renderCollection();
   renderPodcast();
+  renderMissions();
 }
 
 async function loadSourceStatus() {
@@ -536,6 +659,10 @@ function resetProgress() {
     badges: [],
     completedQuizzes: 0,
     correctAnswers: 0,
+    quizCombo: 0,
+    listenedStories: 0,
+    challengePlays: 0,
+    lastActiveDate: "",
     mastered: {},
     mistakes: {},
     saved: {}
@@ -546,6 +673,9 @@ function resetProgress() {
 function bindEvents() {
   document.querySelectorAll(".tab-button").forEach(button => {
     button.addEventListener("click", () => showTab(button.dataset.tab));
+  });
+  document.querySelectorAll(".mission-card").forEach(card => {
+    card.addEventListener("click", () => showTab(card.dataset.tabTarget));
   });
 
   els.gradeSelect.addEventListener("change", () => {
