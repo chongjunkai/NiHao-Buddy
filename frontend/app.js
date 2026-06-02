@@ -328,6 +328,9 @@ const state = {
   loadToken: 0,
   podcastWords: [],
   podcastStory: "",
+  psleSet: null,
+  recognition: null,
+  isRecording: false,
   progress: defaultProgress()
 };
 
@@ -357,6 +360,15 @@ const els = {
   challengeFeedback: document.getElementById("challenge-feedback"),
   podcastWords: document.getElementById("podcast-words"),
   podcastStory: document.getElementById("podcast-story"),
+  psleCompoTitle: document.getElementById("psle-compo-title"),
+  psleCompoPrompt: document.getElementById("psle-compo-prompt"),
+  psleCompoAnswer: document.getElementById("psle-compo-answer"),
+  psleCompoFeedback: document.getElementById("psle-compo-feedback"),
+  psleOralTitle: document.getElementById("psle-oral-title"),
+  psleReadingPassage: document.getElementById("psle-reading-passage"),
+  psleOralQuestion: document.getElementById("psle-oral-question"),
+  psleOralAnswer: document.getElementById("psle-oral-answer"),
+  psleOralFeedback: document.getElementById("psle-oral-feedback"),
   missionWordBar: document.getElementById("mission-word-bar"),
   missionWordStatus: document.getElementById("mission-word-status"),
   missionReviewBar: document.getElementById("mission-review-bar"),
@@ -562,6 +574,41 @@ const ORAL_PATTERNS = [
   "在日常生活中，我也遇过类似的情况，所以我明白互相帮助很重要。",
   "这件事提醒我们，不能只想到自己，也要考虑别人的感受。",
   "总的来说，只要大家愿意多走一步，很多问题都可以变得更好。"
+];
+
+const PSLE_PRACTICE_SETS = [
+  {
+    compoTitle: "看图作文：帮助同学",
+    compoPrompt: "题目：一次帮助同学的经历。请写清楚事情发生的地点、遇到的问题、你怎样帮助别人，以及你学到的道理。",
+    oralTitle: "录像会话：校园互助",
+    readingPassage: "学校举行义卖会，同学们分工合作。有的同学负责布置摊位，有的同学负责招呼顾客。虽然大家都很忙，但是他们互相帮助，最后顺利完成了任务。",
+    oralQuestion: "看了这个校园互助的短片，你觉得同学们的表现怎么样？请说出原因，并分享你自己的经历。",
+    themeWords: ["帮助", "合作", "负责", "同学", "关心", "解决"]
+  },
+  {
+    compoTitle: "命题作文：我克服了困难",
+    compoPrompt: "题目：我克服了困难。请写出你遇到什么困难，当时有什么感受，你用了什么方法解决，最后得到什么启发。",
+    oralTitle: "录像会话：坚持练习",
+    readingPassage: "小明参加朗读比赛。起初，他常常读错字，语速也不稳定。后来，他每天坚持练习，还请老师和家人给他建议。比赛当天，他终于勇敢地完成了朗读。",
+    oralQuestion: "你认为坚持练习重要吗？为什么？请结合短片内容和自己的生活经验回答。",
+    themeWords: ["困难", "坚持", "练习", "勇敢", "建议", "进步"]
+  },
+  {
+    compoTitle: "看图作文：珍惜时间",
+    compoPrompt: "题目：珍惜时间。请写一个因为拖延而遇到麻烦的故事，并说明主人公后来怎样改正。",
+    oralTitle: "录像会话：合理安排时间",
+    readingPassage: "放学后，小华先玩游戏，迟迟没有完成功课。到了晚上，他才发现还有许多任务没做，只好匆匆忙忙地赶工。从那天起，他学会先订计划，再安排休息时间。",
+    oralQuestion: "你觉得学生应该怎样安排课后时间？请说出两个方法，并解释原因。",
+    themeWords: ["时间", "计划", "复习", "功课", "安排", "珍惜"]
+  },
+  {
+    compoTitle: "命题作文：健康生活",
+    compoPrompt: "题目：健康生活从我做起。请写出一个学生改变坏习惯、养成健康生活方式的过程。",
+    oralTitle: "录像会话：健康习惯",
+    readingPassage: "学校举办健康周活动，提醒同学们多运动、少吃零食、保持充足睡眠。许多同学参加了晨跑，也开始选择更健康的食物。",
+    oralQuestion: "你认为健康生活对学生有什么好处？你会怎样养成健康习惯？",
+    themeWords: ["健康", "运动", "睡眠", "习惯", "身体", "精神"]
+  }
 ];
 
 function uniquePhrases(words) {
@@ -1103,6 +1150,157 @@ function playPodcast() {
   renderMissions();
 }
 
+function chineseLength(text) {
+  return (text.match(/[\u4e00-\u9fff]/g) || []).length;
+}
+
+function countMatches(text, words) {
+  return words.filter(word => text.includes(word)).length;
+}
+
+function scoreBand(score, max) {
+  const ratio = score / max;
+  if (ratio >= 0.85) return "Strong";
+  if (ratio >= 0.65) return "Developing well";
+  if (ratio >= 0.45) return "Needs more detail";
+  return "Try again with more support";
+}
+
+function renderMarking(container, title, score, max, points) {
+  container.innerHTML = `
+    <div class="marking-score">
+      <strong>${score}/${max}</strong>
+      <span>${scoreBand(score, max)}</span>
+    </div>
+    <h4>${title}</h4>
+    <ul>
+      ${points.map(point => `<li>${escapeHTML(point)}</li>`).join("")}
+    </ul>
+    <p class="marking-note">This is NiHao Buddy practice feedback based on public PSLE-style components, not an official MOE/SEAB mark.</p>
+  `;
+}
+
+function currentPsleSet() {
+  if (!state.psleSet) state.psleSet = shuffle(PSLE_PRACTICE_SETS)[0];
+  return state.psleSet;
+}
+
+function renderPslePractice() {
+  const set = currentPsleSet();
+  els.psleCompoTitle.textContent = set.compoTitle;
+  els.psleCompoPrompt.textContent = set.compoPrompt;
+  els.psleOralTitle.textContent = set.oralTitle;
+  els.psleReadingPassage.textContent = `朗读篇章：${set.readingPassage}`;
+  els.psleOralQuestion.textContent = `会话问题：${set.oralQuestion}`;
+}
+
+function newPsleSet() {
+  state.psleSet = shuffle(PSLE_PRACTICE_SETS)[0];
+  els.psleCompoAnswer.value = "";
+  els.psleOralAnswer.value = "";
+  els.psleCompoFeedback.innerHTML = "";
+  els.psleOralFeedback.innerHTML = "";
+  renderPslePractice();
+}
+
+function markComposition() {
+  const set = currentPsleSet();
+  const answer = els.psleCompoAnswer.value.trim();
+  const length = chineseLength(answer);
+  const themeHits = countMatches(answer, set.themeWords);
+  const hasOpening = /一开始|那天|有一次|星期|放学|早上|下午/.test(answer);
+  const hasProblem = /困难|问题|着急|害怕|紧张|麻烦|不知所措|伤心/.test(answer);
+  const hasAction = /于是|后来|我决定|我马上|我帮助|我努力|解决|练习/.test(answer);
+  const hasReflection = /明白|学到|以后|从此|道理|启发/.test(answer);
+  let score = 0;
+
+  score += Math.min(8, Math.floor(length / 25));
+  score += Math.min(6, themeHits * 2);
+  score += hasOpening ? 3 : 0;
+  score += hasProblem ? 4 : 0;
+  score += hasAction ? 4 : 0;
+  score += hasReflection ? 3 : 0;
+  score = clamp(score, 0, 30);
+
+  const tips = [
+    length >= 180 ? "Length is healthy for practice." : "Add more details. Aim for at least 180 Chinese characters in this practice box.",
+    themeHits >= 3 ? "You used several theme words." : `Try to use more topic words: ${set.themeWords.join("、")}。`,
+    hasOpening && hasProblem && hasAction ? "Story flow is clear: situation, problem, action." : "Make the story clearer: situation, problem, action, result.",
+    hasReflection ? "You included a reflection or lesson learnt." : "Add a final reflection using 明白、学到、以后 or 道理."
+  ];
+
+  addPoints(5);
+  renderMarking(els.psleCompoFeedback, "Composition Feedback", score, 30, tips);
+}
+
+function markOralAnswer() {
+  const set = currentPsleSet();
+  const answer = els.psleOralAnswer.value.trim();
+  const length = chineseLength(answer);
+  const themeHits = countMatches(answer, set.themeWords);
+  const hasOpinion = /我认为|我觉得|我同意|我不同意|值得/.test(answer);
+  const hasReason = /因为|所以|原因|这是因为/.test(answer);
+  const hasExample = /例如|比如|有一次|在学校|在家里|我也/.test(answer);
+  const hasConclusion = /总的来说|最后|因此|这提醒我们/.test(answer);
+  let score = 0;
+
+  score += Math.min(8, Math.floor(length / 18));
+  score += hasOpinion ? 5 : 0;
+  score += hasReason ? 5 : 0;
+  score += hasExample ? 5 : 0;
+  score += hasConclusion ? 3 : 0;
+  score += Math.min(4, themeHits);
+  score = clamp(score, 0, 30);
+
+  const tips = [
+    length >= 80 ? "Answer has enough speaking content for practice." : "Speak more. Try to give at least 4-6 Chinese sentences.",
+    hasOpinion ? "You gave a clear opinion." : "Start with a clear opinion, for example: 我认为……",
+    hasReason ? "You explained your reason." : "Use 因为/所以 to explain your reason.",
+    hasExample ? "You included a personal or school example." : "Add one example from school or home life.",
+    hasConclusion ? "You ended with a conclusion." : "End with 总的来说 or 这提醒我们."
+  ];
+
+  addPoints(5);
+  renderMarking(els.psleOralFeedback, "Oral Feedback", score, 30, tips);
+}
+
+function startOralRecording() {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) {
+    els.psleOralFeedback.innerHTML = '<p class="empty-state">Speech recognition is not supported in this browser. You can type the answer and press Mark Oral Answer.</p>';
+    return;
+  }
+
+  state.recognition = new Recognition();
+  state.recognition.lang = "zh-CN";
+  state.recognition.continuous = true;
+  state.recognition.interimResults = true;
+  state.isRecording = true;
+  els.psleOralFeedback.innerHTML = '<p class="empty-state">Recording... speak in Chinese. Press Stop Recording when done.</p>';
+
+  state.recognition.onresult = event => {
+    let transcript = "";
+    for (let index = 0; index < event.results.length; index += 1) {
+      transcript += event.results[index][0].transcript;
+    }
+    els.psleOralAnswer.value = transcript;
+  };
+  state.recognition.onerror = event => {
+    els.psleOralFeedback.innerHTML = `<p class="empty-state">Recording issue: ${escapeHTML(event.error)}. You can type your answer instead.</p>`;
+  };
+  state.recognition.onend = () => {
+    state.isRecording = false;
+  };
+  state.recognition.start();
+}
+
+function stopOralRecording() {
+  if (state.recognition && state.isRecording) {
+    state.recognition.stop();
+  }
+  state.isRecording = false;
+}
+
 function showTab(tabName) {
   document.querySelectorAll(".tab-button").forEach(button => {
     button.classList.toggle("active", button.dataset.tab === tabName);
@@ -1118,6 +1316,7 @@ function renderAll() {
   renderReview();
   renderCollection();
   renderPodcast();
+  renderPslePractice();
   renderMissions();
 }
 
@@ -1243,6 +1442,11 @@ function bindEvents() {
   });
   document.getElementById("play-podcast-button").addEventListener("click", playPodcast);
   document.getElementById("stop-podcast-button").addEventListener("click", stopSpeaking);
+  document.getElementById("new-psle-button").addEventListener("click", newPsleSet);
+  document.getElementById("mark-compo-button").addEventListener("click", markComposition);
+  document.getElementById("record-oral-button").addEventListener("click", startOralRecording);
+  document.getElementById("stop-recording-button").addEventListener("click", stopOralRecording);
+  document.getElementById("mark-oral-button").addEventListener("click", markOralAnswer);
   document.getElementById("reset-progress-button").addEventListener("click", resetProgress);
   document.getElementById("clear-collection-button").addEventListener("click", () => {
     state.progress.saved = {};

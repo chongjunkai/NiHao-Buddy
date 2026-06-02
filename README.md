@@ -87,6 +87,7 @@ The current prototype includes:
 - A personal vocabulary collection for saving useful words
 - Recommended revision based on saved words and quiz mistakes
 - A speed challenge mini-game for quick vocabulary practice
+- PSLE Practice Room with original PSLE-style composition and oral prompts, browser speech-to-text recording, and practice feedback
 - A colourful gamified web app interface with quest-style navigation, XP progress cards, badges, and a Buddy Bot mascot
 
 
@@ -123,6 +124,16 @@ To avoid making the project too large, the app does not store audio files locall
 - [PSLEPrep Oral Practice](https://www.psleace.sg/)
 - [CLAce PSLE Chinese Composition Practice](https://clace.sg/)
 - [Geniebook PSLE Chinese Composition Phrases](https://geniebook.com/us/exam-preparation/psle/article/psle-chinese-composition-phrases-to-level-up-writing)
+
+---
+
+## PSLE Practice Room
+
+The app includes a PSLE Practice Room for original PSLE-style practice. It does not copy or store real past-year papers because those papers should be obtained through official or authorised channels. Instead, NiHao Buddy generates Singapore-style practice questions for composition and oral practice.
+
+The oral section includes a record button that uses browser speech recognition when available. The transcript can then be marked by the app using a simple practice rubric that checks for clear opinion, reasons, examples, conclusion, topic vocabulary, and answer length. The composition section gives feedback on structure, topic relevance, vocabulary use, story development, and reflection.
+
+This feedback is for learning and revision only. It is not an official MOE or SEAB mark.
 
 ---
 

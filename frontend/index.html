@@ -121,6 +121,7 @@
         <button class="tab-button" type="button" data-tab="collection"><span>藏</span> Backpack</button>
         <button class="tab-button" type="button" data-tab="challenge"><span>玩</span> Speed Run</button>
         <button class="tab-button" type="button" data-tab="podcast"><span>听</span> Podcast Room</button>
+        <button class="tab-button" type="button" data-tab="psle"><span>考</span> PSLE Room</button>
         <button class="tab-button" type="button" data-tab="progress"><span>星</span> Badges</button>
       </nav>
     </aside>
@@ -270,6 +271,56 @@
           <a href="https://geniebook.com/us/exam-preparation/psle/article/psle-chinese-composition-phrases-to-level-up-writing" target="_blank" rel="noopener">
             <strong>好词好句</strong>
             <span>Composition phrase ideas for building a personal phrase bank.</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="psle-panel">
+        <div class="section-title">
+          <div>
+            <h2>PSLE Practice Room</h2>
+            <p>Original PSLE-style practice. Real past-year papers should be bought from official distributors.</p>
+          </div>
+          <button id="new-psle-button" class="secondary-button" type="button">New Set</button>
+        </div>
+
+        <div class="psle-grid">
+          <article class="psle-card">
+            <p class="prompt-label">Composition Practice</p>
+            <h3 id="psle-compo-title">Loading composition question...</h3>
+            <p id="psle-compo-prompt" class="psle-prompt"></p>
+            <textarea id="psle-compo-answer" class="psle-textarea" rows="8" placeholder="Write your Chinese composition here..."></textarea>
+            <button id="mark-compo-button" class="primary-button" type="button">Mark Composition</button>
+            <div id="psle-compo-feedback" class="marking-feedback"></div>
+          </article>
+
+          <article class="psle-card">
+            <p class="prompt-label">Oral Practice</p>
+            <h3 id="psle-oral-title">Loading oral question...</h3>
+            <p id="psle-reading-passage" class="psle-prompt"></p>
+            <p id="psle-oral-question" class="psle-question"></p>
+            <div class="podcast-actions">
+              <button id="record-oral-button" class="primary-button" type="button">Record Answer</button>
+              <button id="stop-recording-button" class="secondary-button" type="button">Stop Recording</button>
+            </div>
+            <textarea id="psle-oral-answer" class="psle-textarea" rows="6" placeholder="Your spoken answer transcript will appear here. You can also type here."></textarea>
+            <button id="mark-oral-button" class="primary-button" type="button">Mark Oral Answer</button>
+            <div id="psle-oral-feedback" class="marking-feedback"></div>
+          </article>
+        </div>
+
+        <div class="resource-grid psle-resource-grid">
+          <a href="https://www.seab.gov.sg/psle/" target="_blank" rel="noopener">
+            <strong>SEAB PSLE</strong>
+            <span>Official exam format, rules, and distributor links for past-year papers.</span>
+          </a>
+          <a href="https://www.seab.gov.sg/psle/psle-formats-examined-in-2026" target="_blank" rel="noopener">
+            <strong>2026 Format</strong>
+            <span>Official PSLE format page for checking current exam structure.</span>
+          </a>
+          <a href="https://www.psleace.sg/" target="_blank" rel="noopener">
+            <strong>Oral Practice</strong>
+            <span>External Singapore-style oral practice inspiration.</span>
           </a>
         </div>
       </section>
