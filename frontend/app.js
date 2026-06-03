@@ -339,6 +339,7 @@ const els = {
   loginButton: document.getElementById("login-button"),
   passwordInput: document.getElementById("password-input"),
   loginFeedback: document.getElementById("login-feedback"),
+  rewardToast: document.getElementById("reward-toast"),
   profileName: document.getElementById("profile-name"),
   profileMeta: document.getElementById("profile-meta"),
   logoutButton: document.getElementById("logout-button"),
@@ -472,6 +473,25 @@ function shuffle(items) {
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function showRewardToast(message) {
+  if (!els.rewardToast) return;
+
+  els.rewardToast.textContent = message;
+  els.rewardToast.classList.remove("show");
+  els.rewardToast.style.opacity = "0";
+  els.rewardToast.style.transform = "translate(-50%, -20px) scale(0.92)";
+  void els.rewardToast.offsetWidth;
+  els.rewardToast.classList.add("show");
+  els.rewardToast.style.opacity = "1";
+  els.rewardToast.style.transform = "translate(-50%, 0) scale(1)";
+  clearTimeout(showRewardToast.timer);
+  showRewardToast.timer = setTimeout(() => {
+    els.rewardToast.classList.remove("show");
+    els.rewardToast.style.opacity = "0";
+    els.rewardToast.style.transform = "translate(-50%, -20px) scale(0.92)";
+  }, 1300);
 }
 
 function daysBetween(firstDate, secondDate) {
@@ -684,6 +704,7 @@ function addPoints(amount) {
   checkBadges();
   saveProgress();
   renderProgress();
+  showRewardToast(`+${amount} XP`);
 }
 
 function markSaved(word) {
@@ -1031,6 +1052,7 @@ function setChallengeQuestion() {
         addPoints(3);
         els.challengeScore.textContent = state.challengeScore;
         if (state.challengeTargetsLeft === 0) {
+          showRewardToast("ROUND CLEAR");
           setTimeout(() => setChallengeQuestion(), 700);
         }
       } else if (!tile.isTarget) {
