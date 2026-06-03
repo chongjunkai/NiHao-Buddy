@@ -306,6 +306,12 @@ function defaultProgress() {
     listenedStories: 0,
     challengePlays: 0,
     lastActiveDate: "",
+    lastLoginRewardDate: "",
+    claimedQuestDate: "",
+    dailyQuest: { date: "", learned: 0, quizzes: 0, speedRuns: 0, listening: 0 },
+    psleAttempts: [],
+    unlockedThemes: [],
+    unlockedAvatars: [],
     mastered: {},
     mistakes: {},
     saved: {}
@@ -370,6 +376,15 @@ const els = {
   psleOralQuestion: document.getElementById("psle-oral-question"),
   psleOralAnswer: document.getElementById("psle-oral-answer"),
   psleOralFeedback: document.getElementById("psle-oral-feedback"),
+  questLearnStep: document.getElementById("quest-learn-step"),
+  questQuizStep: document.getElementById("quest-quiz-step"),
+  questSpeedStep: document.getElementById("quest-speed-step"),
+  questListenStep: document.getElementById("quest-listen-step"),
+  dailyQuestSummary: document.getElementById("daily-quest-summary"),
+  claimDailyRewardButton: document.getElementById("claim-daily-reward-button"),
+  levelCard: document.getElementById("level-card"),
+  unlocksList: document.getElementById("unlocks-list"),
+  dashboardGrid: document.getElementById("dashboard-grid"),
   missionWordBar: document.getElementById("mission-word-bar"),
   missionWordStatus: document.getElementById("mission-word-status"),
   missionReviewBar: document.getElementById("mission-review-bar"),
@@ -450,6 +465,7 @@ async function activateProfile(username, options = {}) {
   window.history.replaceState({}, "", `?grade=${state.grade}`);
   if (els.gradeSelect.options.length) els.gradeSelect.value = state.grade;
   loadProgress();
+  maybeGiveLoginReward();
   renderProgress();
   await loadWords();
 }
@@ -498,6 +514,90 @@ function daysBetween(firstDate, secondDate) {
   const first = new Date(`${firstDate}T00:00:00`);
   const second = new Date(`${secondDate}T00:00:00`);
   return Math.round((second - first) / 86400000);
+}
+
+function dateAfter(days) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function xpLevel(points = state.progress.points) {
+  return Math.floor(points / 100) + 1;
+}
+
+function learnerTitle() {
+  const level = xpLevel();
+  if (level >= 8) return "Chinese Champion";
+  if (level >= 5) return "Quest Master";
+  if (level >= 3) return "Phrase Explorer";
+  return "Word Rookie";
+}
+
+function unlockedRewards() {
+  const points = state.progress.points;
+  return [
+    points >= 50 ? "Avatar: Buddy Spark" : null,
+    points >= 120 ? "Theme: Candy Quest" : null,
+    points >= 220 ? "Treasure: Golden Pencil" : null,
+    points >= 350 ? "Title: PSLE Explorer" : null,
+    (state.progress.streak || 0) >= 3 ? "Aura: Streak Flame" : null,
+    (state.progress.quizCombo || 0) >= 5 ? "Badge Skin: Combo Star" : null
+  ].filter(Boolean);
+}
+
+function dailyQuestStats() {
+  ensureDailyQuest();
+  return state.progress.dailyQuest;
+}
+
+function ensureDailyQuest() {
+  const today = todayKey();
+  if (!state.progress.dailyQuest || state.progress.dailyQuest.date !== today) {
+    state.progress.dailyQuest = { date: today, learned: 0, quizzes: 0, speedRuns: 0, listening: 0 };
+  }
+}
+
+function addDailyQuestProgress(key, amount = 1) {
+  ensureDailyQuest();
+  state.progress.dailyQuest[key] = (state.progress.dailyQuest[key] || 0) + amount;
+}
+
+function isDailyQuestComplete() {
+  const stats = dailyQuestStats();
+  return stats.learned >= 5 && stats.quizzes >= 3 && stats.speedRuns >= 1 && stats.listening >= 1;
+}
+
+function maybeGiveLoginReward() {
+  const today = todayKey();
+  if (state.progress.lastLoginRewardDate === today) return;
+  state.progress.lastLoginRewardDate = today;
+  state.progress.unlockedThemes = state.progress.unlockedThemes || [];
+  addPoints(5);
+  showRewardToast("Daily Login +5 XP");
+  saveProgress();
+}
+
+function claimDailyReward() {
+  const today = todayKey();
+  if (!isDailyQuestComplete()) {
+    showRewardToast("Finish quest first");
+    return;
+  }
+  if (state.progress.claimedQuestDate === today) {
+    showRewardToast("Chest already claimed");
+    return;
+  }
+  state.progress.claimedQuestDate = today;
+  addPoints(30);
+  if (!state.progress.badges.includes("Daily Quest Clear")) {
+    state.progress.badges.push("Daily Quest Clear");
+  }
+  saveProgress();
+  renderAll();
+  showRewardToast("CHEST +30 XP");
 }
 
 function getLesson(word) {
@@ -631,6 +731,27 @@ const PSLE_PRACTICE_SETS = [
   }
 ];
 
+const THEME_PHRASE_BANK = {
+  "帮助": ["伸出援手", "助人为乐", "互相关心", "雪中送炭"],
+  "合作": ["齐心协力", "分工合作", "同心协力", "互相配合"],
+  "困难": ["克服困难", "坚持不懈", "迎难而上", "不轻言放弃"],
+  "时间": ["珍惜时间", "争分夺秒", "合理安排", "今日事今日毕"],
+  "健康": ["强身健体", "精神饱满", "养成习惯", "保持健康"],
+  "责任": ["认真负责", "尽心尽力", "承担责任", "值得称赞"]
+};
+
+function suggestedPhrasesForSet(set) {
+  const phrases = [];
+  set.themeWords.forEach(word => {
+    Object.entries(THEME_PHRASE_BANK).forEach(([theme, items]) => {
+      if (word.includes(theme) || theme.includes(word)) {
+        phrases.push(...items);
+      }
+    });
+  });
+  return [...new Set(phrases)].slice(0, 6);
+}
+
 function uniquePhrases(words) {
   const seen = new Set();
   return words
@@ -721,6 +842,7 @@ function markSaved(word) {
 
 function markMastered(word) {
   state.progress.mastered[wordKey(word)] = word;
+  addDailyQuestProgress("learned");
   addPoints(5);
   saveProgress();
   renderAll();
@@ -728,6 +850,7 @@ function markMastered(word) {
 
 function recordQuizAnswer(word, isCorrect) {
   state.progress.completedQuizzes += 1;
+  addDailyQuestProgress("quizzes");
 
   if (isCorrect) {
     state.progress.correctAnswers += 1;
@@ -737,9 +860,12 @@ function recordQuizAnswer(word, isCorrect) {
     addPoints(10);
   } else {
     state.progress.quizCombo = 0;
+    const misses = (state.progress.mistakes[wordKey(word)]?.misses || 0) + 1;
+    const intervals = [0, 1, 3, 7];
     state.progress.mistakes[wordKey(word)] = {
       ...word,
-      misses: (state.progress.mistakes[wordKey(word)]?.misses || 0) + 1
+      misses,
+      dueDate: dateAfter(intervals[Math.min(misses - 1, intervals.length - 1)])
     };
   }
 
@@ -779,16 +905,58 @@ function renderProgress() {
   els.badges.innerHTML = "";
   if (state.progress.badges.length === 0) {
     els.badges.innerHTML = "<li>No badges yet. Keep learning!</li>";
-    return;
+  } else {
+    state.progress.badges.forEach(badge => {
+      const li = document.createElement("li");
+      li.textContent = badge;
+      els.badges.appendChild(li);
+    });
   }
 
-  state.progress.badges.forEach(badge => {
-    const li = document.createElement("li");
-    li.textContent = badge;
-    els.badges.appendChild(li);
-  });
-
+  renderLevelAndUnlocks();
+  renderDailyQuest();
+  renderDashboard();
   renderMissions();
+}
+
+function renderLevelAndUnlocks() {
+  if (!els.levelCard || !els.unlocksList) return;
+
+  const level = xpLevel();
+  const nextLevelXp = level * 100;
+  const currentLevelStart = (level - 1) * 100;
+  const progress = clamp((state.progress.points - currentLevelStart) / 100, 0, 1);
+  const rewards = unlockedRewards();
+
+  els.levelCard.innerHTML = `
+    <strong>Level ${level}</strong>
+    <span>${learnerTitle()}</span>
+    <div class="mission-progress"><i style="width:${progress * 100}%"></i></div>
+    <small>${state.progress.points}/${nextLevelXp} XP to next level</small>
+  `;
+
+  els.unlocksList.innerHTML = rewards.length
+    ? rewards.map(reward => `<li>${escapeHTML(reward)}</li>`).join("")
+    : "<li>Earn 50 XP to unlock Buddy Spark.</li>";
+}
+
+function renderDailyQuest() {
+  if (!els.questLearnStep) return;
+
+  const stats = dailyQuestStats();
+  const complete = isDailyQuestComplete();
+  const claimed = state.progress.claimedQuestDate === todayKey();
+  els.questLearnStep.textContent = `Learn ${Math.min(stats.learned, 5)}/5`;
+  els.questQuizStep.textContent = `Quiz ${Math.min(stats.quizzes, 3)}/3`;
+  els.questSpeedStep.textContent = `Speed Run ${Math.min(stats.speedRuns, 1)}/1`;
+  els.questListenStep.textContent = `Listen/PSLE ${Math.min(stats.listening, 1)}/1`;
+  els.dailyQuestSummary.textContent = claimed
+    ? "Chest claimed today. Come back tomorrow for a new quest."
+    : complete
+      ? "Daily quest complete. Claim your treasure chest."
+      : "Learn 5 words, answer 3 quizzes, play Speed Run, listen or practise PSLE, then claim your chest.";
+  els.claimDailyRewardButton.disabled = !complete || claimed;
+  els.claimDailyRewardButton.textContent = claimed ? "Claimed" : complete ? "Claim Chest" : "Locked Chest";
 }
 
 function updateMission(bar, status, current, target, doneText, progressText) {
@@ -949,7 +1117,8 @@ function renderQuiz(forcedWord) {
 function reviewScore(item) {
   const mistakeWeight = item.misses || 0;
   const savedBonus = state.progress.saved[wordKey(item)] ? 1 : 0;
-  return mistakeWeight * 3 + savedBonus;
+  const dueBonus = !item.dueDate || item.dueDate <= todayKey() ? 6 : 0;
+  return dueBonus + mistakeWeight * 3 + savedBonus;
 }
 
 function recommendedWords() {
@@ -982,6 +1151,7 @@ function renderWordList(container, words, emptyText) {
         <h3>${word.pinyin || ""} · ${word.phrase || word.meaning}</h3>
         <p>${word.association || ""}</p>
         <p>${word.good_sentence || ""}</p>
+        ${word.dueDate ? `<p>Revision due: ${escapeHTML(word.dueDate)}</p>` : ""}
       </div>
       <button class="mini-button" type="button">Practice</button>
     `;
@@ -1059,9 +1229,13 @@ function setChallengeQuestion() {
         button.classList.add("missed");
         button.disabled = true;
         els.challengeFeedback.textContent = `Not ${state.challengeAnswer.char}. Keep hunting.`;
+        const mistakeKey = wordKey(state.challengeAnswer);
+        const misses = (state.progress.mistakes[mistakeKey]?.misses || 0) + 1;
+        const intervals = [0, 1, 3, 7];
         state.progress.mistakes[wordKey(state.challengeAnswer)] = {
           ...state.challengeAnswer,
-          misses: (state.progress.mistakes[wordKey(state.challengeAnswer)]?.misses || 0) + 1
+          misses,
+          dueDate: dateAfter(intervals[Math.min(misses - 1, intervals.length - 1)])
         };
         saveProgress();
       }
@@ -1073,6 +1247,7 @@ function setChallengeQuestion() {
 function startChallenge() {
   clearInterval(state.challengeTimer);
   state.progress.challengePlays = (state.progress.challengePlays || 0) + 1;
+  addDailyQuestProgress("speedRuns");
   addPoints(2);
   const sourceWords = state.filteredWords.length >= 4 ? state.filteredWords : state.words;
   const hintedWords = wordsWithEnglishHints(sourceWords);
@@ -1106,6 +1281,24 @@ function startChallenge() {
       renderProgress();
     }
   }, 1000);
+}
+
+function startBossChallenge() {
+  showTab("challenge");
+  const masteredCount = Object.keys(state.progress.mastered).length;
+  if (masteredCount < 5) {
+    els.challengeFeedback.textContent = "Learn 5 words first to unlock the boss challenge.";
+    showRewardToast("Boss locked");
+    return;
+  }
+  startChallenge();
+  addPoints(8);
+  if (!state.progress.badges.includes("Boss Challenger")) {
+    state.progress.badges.push("Boss Challenger");
+  }
+  els.challengeFeedback.textContent = "Boss round started. Find every target fast.";
+  saveProgress();
+  renderProgress();
 }
 
 function buildPodcastStory() {
@@ -1167,6 +1360,7 @@ function renderPodcast() {
 function playPodcast() {
   if (!state.podcastStory) buildPodcastStory();
   state.progress.listenedStories = (state.progress.listenedStories || 0) + 1;
+  addDailyQuestProgress("listening");
   speak(state.podcastStory, { pitch: 1.28, rate: 0.82 });
   addPoints(4);
   renderMissions();
@@ -1248,9 +1442,13 @@ function markComposition() {
     length >= 180 ? "Length is healthy for practice." : "Add more details. Aim for at least 180 Chinese characters in this practice box.",
     themeHits >= 3 ? "You used several theme words." : `Try to use more topic words: ${set.themeWords.join("、")}。`,
     hasOpening && hasProblem && hasAction ? "Story flow is clear: situation, problem, action." : "Make the story clearer: situation, problem, action, result.",
-    hasReflection ? "You included a reflection or lesson learnt." : "Add a final reflection using 明白、学到、以后 or 道理."
+    hasReflection ? "You included a reflection or lesson learnt." : "Add a final reflection using 明白、学到、以后 or 道理.",
+    `Stronger phrases to try: ${suggestedPhrasesForSet(set).join("、") || "认真负责、坚持不懈、互相关心"}。`
   ];
 
+  state.progress.psleAttempts = state.progress.psleAttempts || [];
+  state.progress.psleAttempts.push({ type: "composition", score, max: 30, date: todayKey(), theme: set.compoTitle });
+  addDailyQuestProgress("listening");
   addPoints(5);
   renderMarking(els.psleCompoFeedback, "Composition Feedback", score, 30, tips);
 }
@@ -1279,9 +1477,13 @@ function markOralAnswer() {
     hasOpinion ? "You gave a clear opinion." : "Start with a clear opinion, for example: 我认为……",
     hasReason ? "You explained your reason." : "Use 因为/所以 to explain your reason.",
     hasExample ? "You included a personal or school example." : "Add one example from school or home life.",
-    hasConclusion ? "You ended with a conclusion." : "End with 总的来说 or 这提醒我们."
+    hasConclusion ? "You ended with a conclusion." : "End with 总的来说 or 这提醒我们.",
+    `Useful oral phrases: ${suggestedPhrasesForSet(set).slice(0, 4).join("、") || "我认为、因为、例如、总的来说"}。`
   ];
 
+  state.progress.psleAttempts = state.progress.psleAttempts || [];
+  state.progress.psleAttempts.push({ type: "oral", score, max: 30, date: todayKey(), theme: set.oralTitle });
+  addDailyQuestProgress("listening");
   addPoints(5);
   renderMarking(els.psleOralFeedback, "Oral Feedback", score, 30, tips);
 }
@@ -1321,6 +1523,46 @@ function stopOralRecording() {
     state.recognition.stop();
   }
   state.isRecording = false;
+}
+
+function renderDashboard() {
+  if (!els.dashboardGrid) return;
+
+  const mistakes = Object.values(state.progress.mistakes || {});
+  const attempts = state.progress.psleAttempts || [];
+  const recentScores = attempts.slice(-4).map(item => `${item.type}: ${item.score}/${item.max}`).join(", ") || "No PSLE attempts yet";
+  const weakWords = mistakes
+    .sort((a, b) => (b.misses || 0) - (a.misses || 0))
+    .slice(0, 6)
+    .map(word => `${word.char} (${word.pinyin || ""})`)
+    .join("、") || "No weak words yet";
+  const dueToday = mistakes.filter(word => !word.dueDate || word.dueDate <= todayKey()).length;
+  const averageScore = attempts.length
+    ? Math.round(attempts.reduce((sum, item) => sum + (item.score / item.max) * 100, 0) / attempts.length)
+    : 0;
+
+  els.dashboardGrid.innerHTML = `
+    <article class="dashboard-card">
+      <strong>${Object.keys(state.progress.mastered).length}</strong>
+      <span>Words Learned</span>
+      <p>Saved words: ${Object.keys(state.progress.saved).length}</p>
+    </article>
+    <article class="dashboard-card">
+      <strong>${dueToday}</strong>
+      <span>Due For Review</span>
+      <p>${weakWords}</p>
+    </article>
+    <article class="dashboard-card">
+      <strong>${averageScore || "--"}${averageScore ? "%" : ""}</strong>
+      <span>PSLE Practice Average</span>
+      <p>${recentScores}</p>
+    </article>
+    <article class="dashboard-card">
+      <strong>${learnerTitle()}</strong>
+      <span>Suggested Next Step</span>
+      <p>${dueToday ? "Review weak words first, then do one oral answer." : "Clear today’s Daily Quest Path and claim the chest."}</p>
+    </article>
+  `;
 }
 
 function showTab(tabName) {
@@ -1455,6 +1697,8 @@ function bindEvents() {
     renderFlashcards();
   });
 
+  document.getElementById("claim-daily-reward-button").addEventListener("click", claimDailyReward);
+  document.getElementById("boss-challenge-button").addEventListener("click", startBossChallenge);
   document.getElementById("new-quiz-button").addEventListener("click", () => renderQuiz());
   document.getElementById("refresh-review-button").addEventListener("click", renderReview);
   document.getElementById("start-challenge-button").addEventListener("click", startChallenge);
@@ -1469,6 +1713,7 @@ function bindEvents() {
   document.getElementById("record-oral-button").addEventListener("click", startOralRecording);
   document.getElementById("stop-recording-button").addEventListener("click", stopOralRecording);
   document.getElementById("mark-oral-button").addEventListener("click", markOralAnswer);
+  document.getElementById("refresh-dashboard-button").addEventListener("click", renderDashboard);
   document.getElementById("reset-progress-button").addEventListener("click", resetProgress);
   document.getElementById("clear-collection-button").addEventListener("click", () => {
     state.progress.saved = {};
