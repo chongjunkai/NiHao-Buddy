@@ -91,7 +91,7 @@ The current prototype includes:
 - A speed challenge mini-game for quick vocabulary practice
 - PSLE Practice Room with original PSLE-style composition and oral prompts, browser speech-to-text recording, stronger phrase suggestions, and practice feedback
 - Parent Dashboard showing words learned, weak words, due review count, recent PSLE scores, and suggested next step
-- A colourful gamified web app interface with quest-style navigation, XP progress cards, badges, and a Buddy Bot mascot
+- A cleaner bamboo-themed interface with Student Mode, Parent/Teacher Mode, quest-style navigation, XP progress cards, badges, and a Panda Buddy mascot
 
 
 <img width="1276" height="754" alt="Screenshot 2026-05-31 at 11 22 09 PM" src="https://github.com/user-attachments/assets/33b65279-6991-48d0-8933-7fe376411fe3" />
@@ -111,6 +111,25 @@ The app now includes a simple local student login so different learners can keep
 | Enya | `enya` | `enya123` | P1 vocabulary, age 6 starter path |
 
 This helps show how NiHao Buddy can become more personalised for different students in the same family or classroom.
+
+---
+
+## User Interface Design
+
+NiHao Buddy now has two clear modes:
+
+- **Student Mode** is the default experience. It shows a focused learning map with Start Today's Lesson, Word Album, Quiz, Dictation, Review, Speed Challenge, Listening, and Rewards.
+- **Parent/Teacher Mode** keeps adult-facing tools separate, including Data Lab, PSLE Practice Room, Dashboard, progress reports, and source library tools.
+
+The visual design uses a bamboo-inspired Chinese theme:
+
+- soft bamboo green as the main learning colour
+- warm paper-style backgrounds
+- pale gold accents
+- light bamboo-line background patterns
+- a cute Panda Buddy mascot
+
+This makes the app feel more connected to Chinese learning while still staying friendly for younger students and usable on mobile screens.
 
 ---
 
@@ -189,7 +208,11 @@ This feedback is for learning and revision only. It is not an official MOE or SE
 - HTML
 - CSS
 - JavaScript
-- Python (planned exploration)
+- Python
+- Flask
+- SQLite
+- Local browser storage
+- Browser speech and audio features
 - AI-assisted development tools
 
 ---

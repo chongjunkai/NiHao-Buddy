@@ -53,6 +53,7 @@
         <span>Word Arena</span>
         <span>Podcast Room</span>
       </div>
+      <button id="hero-word-album-button" class="primary-button hero-word-album-button" type="button">Word Album</button>
       <p id="source-status" class="source-status">Loading data source...</p>
     </div>
 
@@ -62,7 +63,7 @@
         <span class="mascot-eye"></span>
         <span class="mascot-mouth"></span>
       </div>
-      <strong>Buddy Bot</strong>
+      <strong>Panda Buddy</strong>
       <span>Ready for a word quest?</span>
     </div>
 
@@ -87,6 +88,19 @@
       <div class="sidebar-title">
         <strong>Quest Map</strong>
         <span>Choose your training zone</span>
+      </div>
+
+      <div class="mode-switch" aria-label="App mode">
+        <button id="student-mode-button" class="mode-button active" type="button" data-mode-choice="student">Student Mode</button>
+        <button id="parent-mode-button" class="mode-button" type="button" data-mode-choice="parent">Parent/Teacher</button>
+      </div>
+
+      <div class="field-group language-switcher">
+        <label for="ui-language-select">Interface</label>
+        <select id="ui-language-select">
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
       </div>
 
       <div class="profile-panel">
@@ -117,20 +131,24 @@
       <button id="boss-challenge-button" class="primary-button boss-button" type="button">Boss Challenge</button>
 
       <nav class="tabs" aria-label="App sections">
-        <button class="tab-button active" type="button" data-tab="learn"><span>学</span> Word Base</button>
-        <button class="tab-button" type="button" data-tab="quiz"><span>测</span> Quiz Arena</button>
-        <button class="tab-button" type="button" data-tab="review"><span>复</span> Review Quest</button>
-        <button class="tab-button" type="button" data-tab="collection"><span>藏</span> Backpack</button>
-        <button class="tab-button" type="button" data-tab="challenge"><span>玩</span> Speed Run</button>
-        <button class="tab-button" type="button" data-tab="podcast"><span>听</span> Podcast Room</button>
-        <button class="tab-button" type="button" data-tab="psle"><span>考</span> PSLE Room</button>
-        <button class="tab-button" type="button" data-tab="dashboard"><span>家</span> Dashboard</button>
-        <button class="tab-button" type="button" data-tab="progress"><span>星</span> Badges</button>
+        <button class="tab-button active" type="button" data-tab="home"><span>家</span> Home</button>
+        <button class="tab-button" type="button" data-tab="learn" data-mode="student"><span>学</span> Word Base</button>
+        <button class="tab-button" type="button" data-tab="quiz" data-mode="student"><span>测</span> Quiz Arena</button>
+        <button class="tab-button" type="button" data-tab="dictation" data-mode="student"><span>听</span> Dictation</button>
+        <button class="tab-button" type="button" data-tab="review" data-mode="student"><span>复</span> Review Quest</button>
+        <button class="tab-button" type="button" data-tab="collection" data-mode="student"><span>藏</span> Backpack</button>
+        <button class="tab-button" type="button" data-tab="challenge" data-mode="student"><span>玩</span> Speed Run</button>
+        <button class="tab-button" type="button" data-tab="podcast" data-mode="student"><span>听</span> Podcast Room</button>
+        <button class="tab-button" type="button" data-tab="progress" data-mode="student"><span>星</span> Badges</button>
+        <button class="tab-button" type="button" data-tab="psle" data-mode="parent"><span>考</span> PSLE Room</button>
+        <button class="tab-button" type="button" data-tab="import" data-mode="parent"><span>导</span> Data Lab</button>
+        <button class="tab-button" type="button" data-tab="dashboard" data-mode="parent"><span>家</span> Dashboard</button>
       </nav>
     </aside>
 
     <section class="content">
-      <section class="daily-quest-panel" aria-label="Daily quest path">
+      <section class="tab-panel active" id="home-panel">
+      <section class="daily-quest-panel" data-mode="student" aria-label="Daily quest path">
         <div>
           <p class="eyebrow">Daily Quest Path</p>
           <h2>Clear today’s Chinese quest</h2>
@@ -145,42 +163,98 @@
         <button id="claim-daily-reward-button" class="primary-button" type="button">Claim Chest</button>
       </section>
 
-      <section class="mission-strip" aria-label="Learning tools">
-        <article class="mission-card" data-tab-target="learn" data-mission="word">
-          <strong>Mission 1</strong>
-          <span>Flip through word cards and collect useful phrases.</span>
+      <section class="feature-grid" aria-label="Feature menu">
+        <article class="feature-card primary-feature mission-card" data-mode="student" data-tab-target="learn" data-mission="word" data-title-key="startLesson" data-desc-key="startLessonText">
+          <strong>Start Today’s Lesson</strong>
+          <span>Begin with five useful words, then continue through today’s quest path.</span>
           <div class="mission-progress"><i id="mission-word-bar"></i></div>
           <small id="mission-word-status">0/5 words cleared</small>
         </article>
-        <article class="mission-card" data-tab-target="review" data-mission="review">
-          <strong>Mission 2</strong>
+        <article class="feature-card" data-mode="student" data-tab-target="learn" data-title-key="wordBase" data-desc-key="wordAlbumText">
+          <strong>Mission 1</strong>
+          <span>Flip through big word cards with sound, 好词 and 好句.</span>
+        </article>
+        <article class="feature-card" data-mode="student" data-tab-target="quiz" data-title-key="quizArena" data-desc-key="quizIntro">
+          <strong>Quiz Arena</strong>
+          <span>Pick the correct Chinese character and build your combo.</span>
+        </article>
+        <article class="feature-card" data-mode="student" data-tab-target="dictation" data-title-key="dictation" data-desc-key="dictationPrompt">
+          <strong>Dictation</strong>
+          <span>Listen to good phrases, write on paper, then self-check.</span>
+        </article>
+        <article class="feature-card mission-card" data-mode="student" data-tab-target="review" data-mission="review" data-title-key="reviewQuest" data-desc-key="mission2Text">
+          <strong>Review Quest</strong>
           <span>Fix mistakes so weak words come back for review.</span>
           <div class="mission-progress"><i id="mission-review-bar"></i></div>
           <small id="mission-review-status">0/3 quiz answers</small>
         </article>
-        <article class="mission-card" data-tab-target="challenge" data-mission="challenge">
-          <strong>Mission 3</strong>
+        <article class="feature-card" data-mode="student" data-tab-target="collection" data-title-key="backpack" data-desc-key="collectionIntro">
+          <strong>Backpack</strong>
+          <span>Keep saved words for personal practice.</span>
+        </article>
+        <article class="feature-card mission-card" data-mode="student" data-tab-target="challenge" data-mission="challenge" data-title-key="speedRun" data-desc-key="mission3Text">
+          <strong>Speed Run</strong>
           <span>Build a streak, win badges, and try speed mode.</span>
           <div class="mission-progress"><i id="mission-challenge-bar"></i></div>
           <small id="mission-challenge-status">0/1 speed run</small>
         </article>
-        <article class="mission-card" data-tab-target="podcast" data-mission="listen">
-          <strong>Mission 4</strong>
+        <article class="feature-card mission-card" data-mode="student" data-tab-target="podcast" data-mission="listen" data-title-key="podcastRoom" data-desc-key="mission4Text">
+          <strong>Podcast Room</strong>
           <span>Listen to vocabulary stories for 磨耳朵 practice.</span>
           <div class="mission-progress"><i id="mission-listen-bar"></i></div>
           <small id="mission-listen-status">0/1 story listened</small>
         </article>
+        <article class="feature-card" data-mode="student" data-tab-target="progress" data-title-key="badges" data-desc-key="progressIntro">
+          <strong>Badges</strong>
+          <span>Track XP, streaks, rewards, and unlocks.</span>
+        </article>
+        <article class="feature-card parent-feature" data-mode="parent" data-tab-target="dashboard" data-title-key="dashboard" data-desc-key="dashboardIntro">
+          <strong>Dashboard</strong>
+          <span>See weak words, scores, and suggested revision.</span>
+        </article>
+        <article class="feature-card parent-feature" data-mode="parent" data-tab-target="import" data-title-key="dataLab" data-desc-key="dataLabIntro">
+          <strong>Data Lab</strong>
+          <span>Add your own words, phrases, sentences, and paragraphs.</span>
+        </article>
+        <article class="feature-card parent-feature" data-mode="parent" data-tab-target="psle" data-title-key="psleRoom" data-desc-key="psleIntro">
+          <strong>PSLE Room</strong>
+          <span>Practise oral and composition with feedback.</span>
+        </article>
+      </section>
       </section>
 
-      <section class="tab-panel active" id="learn-panel">
+      <section class="tab-panel" id="learn-panel">
         <div class="section-title">
           <div>
             <h2>Word Base</h2>
             <p id="word-count">Loading words...</p>
           </div>
-          <button id="shuffle-button" class="secondary-button" type="button">Shuffle</button>
+          <div class="album-controls">
+            <button id="album-sound-button" class="secondary-button" type="button">Enable Sound</button>
+            <button id="album-prev-button" class="secondary-button" type="button">Prev</button>
+            <button id="album-play-button" class="primary-button" type="button">Pause Auto Play</button>
+            <button id="album-next-button" class="secondary-button" type="button">Next</button>
+            <button id="album-random-button" class="secondary-button" type="button">Random</button>
+            <button id="album-frequency-button" class="secondary-button" type="button">High Frequency</button>
+          </div>
         </div>
+        <p class="album-hint">Click Enable Sound once. Auto-play can then read the word, 好词, and 好句.</p>
         <div id="flashcards" class="card-grid"></div>
+        <article id="helper-editor" class="helper-editor" hidden>
+          <div>
+            <p class="eyebrow">My 好词</p>
+            <h3 id="helper-editor-title">Edit 好词</h3>
+          </div>
+          <label for="helper-phrase-input">好词</label>
+          <input id="helper-phrase-input" type="text" placeholder="Enter a better 好词">
+          <label for="helper-sentence-input">好句</label>
+          <textarea id="helper-sentence-input" rows="4" placeholder="Enter a useful sentence with this word"></textarea>
+          <div class="podcast-actions">
+            <button id="save-helper-button" class="primary-button" type="button">Save 好词</button>
+            <button id="cancel-helper-button" class="secondary-button" type="button">Cancel</button>
+          </div>
+          <p id="helper-editor-feedback" class="feedback"></p>
+        </article>
       </section>
 
       <section class="tab-panel" id="quiz-panel">
@@ -196,6 +270,39 @@
           <h3 id="quiz-question">Loading quiz...</h3>
           <div id="quiz-options" class="option-grid"></div>
           <p id="quiz-feedback" class="feedback"></p>
+        </article>
+      </section>
+
+      <section class="tab-panel" id="dictation-panel">
+        <div class="section-title">
+          <div>
+            <h2>Dictation Practice</h2>
+            <p id="dictation-source">Loading bilingual wordlist...</p>
+          </div>
+          <button id="new-dictation-button" class="secondary-button" type="button">New Word</button>
+        </div>
+        <article class="dictation-card">
+          <p class="prompt-label">Listen, write on paper, then self-check</p>
+          <div class="dictation-status">
+            <span id="dictation-progress">0 words ready</span>
+            <span id="dictation-score">0 correct</span>
+          </div>
+          <div class="dictation-group-control">
+            <label for="dictation-group-select">Dictation Set</label>
+            <select id="dictation-group-select"></select>
+          </div>
+          <div class="dictation-listen-row">
+            <button id="play-dictation-button" class="primary-button" type="button">Play Word</button>
+            <button id="replay-dictation-button" class="secondary-button" type="button">Replay Slowly</button>
+            <button id="reveal-dictation-button" class="secondary-button" type="button">Reveal</button>
+          </div>
+          <div id="dictation-answer-card" class="dictation-answer-card" hidden></div>
+          <div class="dictation-listen-row">
+            <button id="dictation-correct-button" class="primary-button" type="button">I wrote it correctly</button>
+            <button id="dictation-review-button" class="secondary-button" type="button">Need Review</button>
+            <button id="next-dictation-button" class="secondary-button" type="button">Next</button>
+          </div>
+          <div id="dictation-feedback" class="dictation-feedback"></div>
         </article>
       </section>
 
@@ -224,8 +331,8 @@
       <section class="tab-panel" id="challenge-panel">
         <div class="section-title">
           <div>
-            <h2>Word Hunt Speed Run</h2>
-            <p>Click every matching target character hidden inside the mixed word grid before time runs out.</p>
+            <h2>Phrase Hunt Speed Run</h2>
+            <p>Use the clue to spot every phrase card that contains the hidden target word before time runs out.</p>
           </div>
           <button id="start-challenge-button" class="primary-button" type="button">Start</button>
         </div>
@@ -241,7 +348,7 @@
             </div>
             <div>
               <small>Time</small>
-              <strong id="challenge-time">30</strong>
+              <strong id="challenge-time">90</strong>
             </div>
           </div>
           <div id="challenge-options" class="option-grid"></div>
@@ -318,9 +425,17 @@
             <p id="psle-reading-passage" class="psle-prompt"></p>
             <p id="psle-oral-question" class="psle-question"></p>
             <div class="podcast-actions">
+              <button id="play-oral-passage-button" class="secondary-button" type="button">Play Passage</button>
+              <button id="play-oral-question-button" class="secondary-button" type="button">Play Question</button>
+              <button id="play-model-answer-button" class="secondary-button" type="button">Play Model Answer</button>
+              <button id="stop-oral-audio-button" class="secondary-button" type="button">Stop Audio</button>
               <button id="record-oral-button" class="primary-button" type="button">Record Answer</button>
               <button id="stop-recording-button" class="secondary-button" type="button">Stop Recording</button>
             </div>
+            <details class="model-answer-box" open>
+              <summary>Model Answer</summary>
+              <p id="psle-model-answer"></p>
+            </details>
             <textarea id="psle-oral-answer" class="psle-textarea" rows="6" placeholder="Your spoken answer transcript will appear here. You can also type here."></textarea>
             <button id="mark-oral-button" class="primary-button" type="button">Mark Oral Answer</button>
             <div id="psle-oral-feedback" class="marking-feedback"></div>
@@ -341,6 +456,115 @@
             <span>External Singapore-style oral practice inspiration.</span>
           </a>
         </div>
+      </section>
+
+      <section class="tab-panel" id="import-panel">
+        <div class="section-title">
+          <div>
+            <h2>Data Lab</h2>
+            <p>Import new Chinese learning data into the local database and word games.</p>
+          </div>
+          <button id="sample-import-button" class="secondary-button" type="button">Use Sample</button>
+        </div>
+
+        <article class="manual-source-card">
+          <div class="section-title compact-title">
+            <div>
+              <h2>Manual Source Builder</h2>
+              <p>Add one word, phrase, sentence, or paragraph whenever you find useful Chinese learning material.</p>
+            </div>
+          </div>
+
+          <div class="manual-source-grid">
+            <label for="source-type">Type</label>
+            <select id="source-type">
+              <option value="word">Word</option>
+              <option value="phrase">Phrase</option>
+              <option value="sentence">Sentence</option>
+              <option value="paragraph">Paragraph</option>
+            </select>
+
+            <label for="source-grade">Level / Collection</label>
+            <input id="source-grade" type="text" value="custom" placeholder="custom, P6, oral, compo">
+
+            <label for="source-theme">Theme</label>
+            <input id="source-theme" type="text" placeholder="helping others, responsibility, time">
+
+            <label for="source-pinyin">Pinyin</label>
+            <input id="source-pinyin" type="text" placeholder="optional">
+
+            <label for="source-meaning">Meaning / Use</label>
+            <input id="source-meaning" type="text" placeholder="English meaning or why this is useful">
+
+            <label for="source-content">Chinese Source</label>
+            <textarea id="source-content" rows="6" placeholder="Paste or type a word, phrase, sentence, or paragraph here"></textarea>
+
+            <label for="source-note">Study Note</label>
+            <textarea id="source-note" rows="3" placeholder="Optional note: where it came from, how to use it, or why it is useful"></textarea>
+          </div>
+
+          <div class="podcast-actions">
+            <button id="save-source-button" class="primary-button" type="button">Save Source</button>
+            <button id="listen-source-button" class="secondary-button" type="button">Listen</button>
+          </div>
+          <p id="source-feedback" class="feedback"></p>
+        </article>
+
+        <article class="source-library-card">
+          <div class="section-title compact-title">
+            <div>
+              <h2>Source Library</h2>
+              <p>Recently saved learning sources. Words and phrases also join the word games.</p>
+            </div>
+            <button id="refresh-sources-button" class="secondary-button" type="button">Refresh</button>
+          </div>
+          <div id="source-library-list" class="source-library-list"></div>
+        </article>
+
+        <article class="import-card">
+          <div class="import-guide">
+            <h3>Dictionary 好词好句 Import</h3>
+            <p>Paste licensed dictionary notes or your own curated source. The app only accepts rows where the phrase and sentence contain the target character.</p>
+            <pre>char,grade,meaning,phrase,sentence,source
+克,6,第1课 识读字,克服困难,他终于克服困难，完成了这项挑战。,my notes</pre>
+          </div>
+
+          <div class="import-controls">
+            <label for="helper-import-grade">Default Level</label>
+            <input id="helper-import-grade" type="text" value="" placeholder="optional: 1, 2, 3, 4, 5, 6">
+
+            <label for="helper-import-text">Paste 好词好句 CSV</label>
+            <textarea id="helper-import-text" rows="8" placeholder="char,grade,meaning,phrase,sentence,source"></textarea>
+
+            <button id="import-helper-button" class="primary-button" type="button">Import 好词好句</button>
+            <p id="helper-import-feedback" class="feedback"></p>
+          </div>
+        </article>
+
+        <article class="import-card">
+          <div class="import-guide">
+            <h3>CSV Format</h3>
+            <p>Use a header row. Supported columns include <strong>char</strong>, <strong>word</strong>, <strong>hanzi</strong>, <strong>汉字</strong>, <strong>pinyin</strong>, <strong>meaning</strong>, and <strong>grade</strong>.</p>
+            <pre>char,pinyin,meaning,grade
+坚持,jiān chí,persevere,custom
+责任,zé rèn,responsibility,custom</pre>
+            <p>The app saves imports to <strong>data/custom_imports.csv</strong>, then rebuilds them into SQLite whenever NiHao Buddy restarts.</p>
+          </div>
+
+          <div class="import-controls">
+            <label for="import-grade">Default Level</label>
+            <input id="import-grade" type="text" value="custom" placeholder="custom, P6, oral, compo">
+
+            <label for="import-file">Upload CSV</label>
+            <input id="import-file" type="file" accept=".csv,text/csv">
+
+            <label for="import-text">Paste CSV Data</label>
+            <textarea id="import-text" rows="10" placeholder="char,pinyin,meaning,grade"></textarea>
+
+            <button id="import-data-button" class="primary-button" type="button">Import Data</button>
+            <p id="import-feedback" class="feedback"></p>
+          </div>
+        </article>
       </section>
 
       <section class="tab-panel" id="dashboard-panel">

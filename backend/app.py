@@ -1,17 +1,25 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, Response
 from flask_cors import CORS
 from pypinyin import Style, lazy_pinyin
 from functools import lru_cache
 import jieba
-import sqlite3, os, csv
+import sqlite3, os, csv, io, json
 from urllib.parse import quote
+from urllib.request import Request, urlopen
+from datetime import datetime
 import re
+import ssl
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 FRONTEND_DIR = os.path.join(ROOT_DIR, "frontend")
 DATA_DIR = os.path.join(ROOT_DIR, "data")
 DB_PATH = os.path.join(DATA_DIR, "huaword.db")
 SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "models/schema.sql")
+CUSTOM_IMPORT_PATH = os.path.join(DATA_DIR, "custom_imports.csv")
+LEARNING_SOURCES_PATH = os.path.join(DATA_DIR, "learning_sources.jsonl")
+WORD_HELPERS_PATH = os.path.join(DATA_DIR, "word_helpers.jsonl")
+CURATED_PHRASE_BANK_PATH = os.path.join(DATA_DIR, "curated_phrase_bank.jsonl")
+BILINGUAL_WORDLIST_PATH = os.path.join(DATA_DIR, "bilingual_wordlist.jsonl")
 
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
 CORS(app)
@@ -142,6 +150,8 @@ PREFERRED_HELPERS = {
     "阵": ("一阵", "一阵微风吹来，让人觉得很舒服。"),
 }
 PHRASE_CHOICES_BY_CHAR = None
+CURATED_PHRASE_BANK = None
+BILINGUAL_WORDLIST = None
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -164,6 +174,296 @@ def import_csv_file(conn, csv_path):
                     row.get("grade", "").strip(),
                 )
             )
+
+def clean_import_row(row, fallback_grade="custom"):
+    char = (
+        row.get("char")
+        or row.get("word")
+        or row.get("hanzi")
+        or row.get("chinese")
+        or row.get("汉字")
+        or row.get("字")
+        or ""
+    ).strip()
+    pinyin = (row.get("pinyin") or row.get("拼音") or "").strip()
+    meaning = (
+        row.get("meaning")
+        or row.get("english")
+        or row.get("definition")
+        or row.get("意思")
+        or row.get("英文")
+        or ""
+    ).strip()
+    grade = (row.get("grade") or row.get("level") or row.get("年级") or fallback_grade or "custom").strip()
+
+    return {
+        "char": char,
+        "pinyin": pinyin,
+        "meaning": meaning,
+        "grade": grade
+    }
+
+def append_custom_import(rows):
+    file_exists = os.path.exists(CUSTOM_IMPORT_PATH)
+    with open(CUSTOM_IMPORT_PATH, "a", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["char", "pinyin", "meaning", "grade"])
+        if not file_exists or os.path.getsize(CUSTOM_IMPORT_PATH) == 0:
+            writer.writeheader()
+        writer.writerows(rows)
+
+def clean_source_entry(data):
+    content_type = (data.get("content_type") or data.get("type") or "word").strip().lower()
+    if content_type not in {"word", "phrase", "sentence", "paragraph"}:
+        content_type = "word"
+
+    content = (data.get("content") or data.get("text") or "").strip()
+    return {
+        "content_type": content_type,
+        "content": content,
+        "pinyin": (data.get("pinyin") or "").strip(),
+        "meaning": (data.get("meaning") or data.get("english") or "").strip(),
+        "grade": (data.get("grade") or "custom").strip(),
+        "theme": (data.get("theme") or "").strip(),
+        "note": (data.get("note") or "").strip(),
+        "created_at": data.get("created_at") or datetime.now().isoformat(timespec="seconds")
+    }
+
+def save_source_entry(conn, entry):
+    cursor = conn.execute(
+        """
+        INSERT OR IGNORE INTO learning_sources
+          (content_type, content, pinyin, meaning, grade, theme, note, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            entry["content_type"],
+            entry["content"],
+            entry["pinyin"],
+            entry["meaning"],
+            entry["grade"],
+            entry["theme"],
+            entry["note"],
+            entry["created_at"],
+        )
+    )
+
+    if entry["content_type"] in {"word", "phrase"}:
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO words (char, pinyin, meaning, grade)
+            VALUES (?, ?, ?, ?)
+            """,
+            (entry["content"], entry["pinyin"], entry["meaning"] or entry["theme"], entry["grade"])
+        )
+
+    return cursor.rowcount
+
+def append_learning_source(entry):
+    with open(LEARNING_SOURCES_PATH, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+def import_learning_sources(conn):
+    if not os.path.exists(LEARNING_SOURCES_PATH):
+        return
+
+    with open(LEARNING_SOURCES_PATH, "r", encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            try:
+                entry = clean_source_entry(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+            if entry["content"]:
+                save_source_entry(conn, entry)
+
+def clean_word_helper(data):
+    return {
+        "char": (data.get("char") or "").strip(),
+        "grade": (data.get("grade") or "").strip(),
+        "meaning": (data.get("meaning") or "").strip(),
+        "phrase": (data.get("phrase") or "").strip(),
+        "sentence": (data.get("sentence") or "").strip(),
+        "note": (data.get("note") or "").strip(),
+        "created_at": data.get("created_at") or datetime.now().isoformat(timespec="seconds")
+    }
+
+def clean_word_helper_row(row, fallback_grade=""):
+    return clean_word_helper({
+        "char": row.get("char") or row.get("word") or row.get("hanzi") or row.get("字") or row.get("汉字") or "",
+        "grade": row.get("grade") or row.get("level") or row.get("年级") or fallback_grade or "",
+        "meaning": row.get("meaning") or row.get("definition") or row.get("意思") or row.get("课文") or "",
+        "phrase": row.get("phrase") or row.get("word_phrase") or row.get("词语") or row.get("好词") or "",
+        "sentence": row.get("sentence") or row.get("example") or row.get("例句") or row.get("好句") or "",
+        "note": row.get("note") or row.get("source") or row.get("来源") or ""
+    })
+
+def helper_matches_word(helper):
+    char = helper["char"]
+    phrase = helper["phrase"]
+    sentence = helper["sentence"]
+    if not char or not phrase:
+        return False
+    if char not in phrase:
+        return False
+    if sentence and char not in sentence and phrase not in sentence:
+        return False
+    return True
+
+def save_word_helper(conn, helper):
+    conn.execute(
+        """
+        INSERT INTO word_helpers (char, grade, meaning, phrase, sentence, note, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(char, grade, meaning) DO UPDATE SET
+          phrase=excluded.phrase,
+          sentence=excluded.sentence,
+          note=excluded.note,
+          created_at=excluded.created_at
+        """,
+        (
+            helper["char"],
+            helper["grade"],
+            helper["meaning"],
+            helper["phrase"],
+            helper["sentence"],
+            helper["note"],
+            helper["created_at"],
+        )
+    )
+
+def append_word_helper(helper):
+    with open(WORD_HELPERS_PATH, "a", encoding="utf-8") as f:
+        f.write(json.dumps(helper, ensure_ascii=False) + "\n")
+
+def import_word_helpers(conn):
+    if not os.path.exists(WORD_HELPERS_PATH):
+        return
+
+    with open(WORD_HELPERS_PATH, "r", encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            try:
+                helper = clean_word_helper(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+            if helper["char"] and helper["phrase"]:
+                save_word_helper(conn, helper)
+
+def word_helper_lookup(conn, grade):
+    rows = conn.execute(
+        """
+        SELECT char, grade, meaning, phrase, sentence
+        FROM word_helpers
+        WHERE grade=? OR grade=''
+        ORDER BY id DESC
+        """,
+        (grade,)
+    ).fetchall()
+    helpers = {}
+    for row in rows:
+        helper = dict(row)
+        helpers[(helper["char"], helper["grade"], helper["meaning"])] = helper
+        helpers.setdefault((helper["char"], helper["grade"], ""), helper)
+        helpers.setdefault((helper["char"], "", ""), helper)
+    return helpers
+
+def load_curated_phrase_bank():
+    global CURATED_PHRASE_BANK
+    if CURATED_PHRASE_BANK is not None:
+        return CURATED_PHRASE_BANK
+
+    bank = []
+    if os.path.exists(CURATED_PHRASE_BANK_PATH):
+        with open(CURATED_PHRASE_BANK_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                if not line.strip():
+                    continue
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                phrase = (entry.get("phrase") or "").strip()
+                sentence = (entry.get("sentence") or "").strip()
+                targets = (entry.get("targets") or phrase).strip()
+                if phrase and targets:
+                    bank.append({
+                        "targets": targets,
+                        "phrase": phrase,
+                        "sentence": sentence,
+                        "min_grade": int(entry.get("min_grade") or 1),
+                        "max_grade": int(entry.get("max_grade") or 6),
+                        "theme": (entry.get("theme") or "").strip(),
+                        "source": (entry.get("source") or "").strip(),
+                    })
+
+    CURATED_PHRASE_BANK = bank
+    return CURATED_PHRASE_BANK
+
+def curated_helper_for_word(char, grade):
+    if not char:
+        return None
+    try:
+        grade_number = int(grade)
+    except (TypeError, ValueError):
+        grade_number = 6
+
+    for entry in load_curated_phrase_bank():
+        if not (entry["min_grade"] <= grade_number <= entry["max_grade"]):
+            continue
+        if char in entry["targets"] and char in entry["phrase"]:
+            return entry
+    return None
+
+def load_bilingual_wordlist():
+    global BILINGUAL_WORDLIST
+    if BILINGUAL_WORDLIST is not None:
+        return BILINGUAL_WORDLIST
+
+    entries = []
+    if os.path.exists(BILINGUAL_WORDLIST_PATH):
+        with open(BILINGUAL_WORDLIST_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                if not line.strip():
+                    continue
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                word = (entry.get("word") or "").strip()
+                english = (entry.get("english") or "").strip()
+                grade = (entry.get("grade") or "").strip()
+                if word and english and grade:
+                    entries.append({
+                        "word": word,
+                        "english": english,
+                        "grade": grade,
+                        "source_pdf": (entry.get("source_pdf") or "").strip(),
+                        "page": entry.get("page") or "",
+                    })
+
+    entries.sort(key=lambda item: (len(item["word"]), item["word"]))
+    BILINGUAL_WORDLIST = entries
+    return BILINGUAL_WORDLIST
+
+def bilingual_helper_for_word(char, grade):
+    if not char:
+        return None
+    grade = str(grade or "")
+    exact_match = None
+    contains_match = None
+
+    for entry in load_bilingual_wordlist():
+        if entry["grade"] != grade:
+            continue
+        if entry["word"] == char:
+            exact_match = entry
+            break
+        if char in entry["word"] and contains_match is None:
+            contains_match = entry
+
+    return exact_match or contains_match
 
 def phrase_choices_by_char():
     global PHRASE_CHOICES_BY_CHAR
@@ -193,35 +493,74 @@ def phrase_choices_by_char():
 def choose_phrase(char):
     if char in PREFERRED_HELPERS:
         return PREFERRED_HELPERS[char][0]
+    return char
 
-    candidates = phrase_choices_by_char().get(char, [])
-    if not candidates:
-        return f"{char}的词语"
+def lesson_number(meaning):
+    match = re.search(r"第(\d+)课", meaning or "")
+    return match.group(1) if match else ""
 
-    return candidates[0][1]
+def lesson_context(words, current_word):
+    current = dict(current_word)
+    lesson = lesson_number(current.get("meaning", ""))
+    if not lesson:
+        return []
 
-def good_sentence(char, phrase):
+    related = []
+    for row in words:
+        item = dict(row)
+        if item.get("char") == current.get("char"):
+            continue
+        if lesson_number(item.get("meaning", "")) != lesson:
+            continue
+        phrase = choose_phrase(item.get("char", ""))
+        if phrase and phrase not in related:
+            related.append(phrase)
+        if len(related) >= 3:
+            break
+    return related
+
+def good_sentence(char, phrase, related_words=None, lesson=""):
     if char in PREFERRED_HELPERS:
         return PREFERRED_HELPERS[char][1]
 
-    templates = [
-        f"读到「{phrase}」这个好词时，我能想到和「{char}」有关的意思。",
-        f"学习「{char}」时，可以先记住「{phrase}」这个常用词。",
-        f"把「{phrase}」放在词语本里，复习「{char}」时就更容易想起来。",
-        f"看到「{phrase}」这个词，我会提醒自己读准「{char}」。"
-    ]
-    return templates[ord(char) % len(templates)]
+    return ""
 
-def enrich_word(row):
+def enrich_word(row, helpers=None, related_words=None):
     word = dict(row)
     char = word.get("char", "")
     pinyin = word.get("pinyin") or " ".join(lazy_pinyin(char, style=Style.TONE))
-    phrase = choose_phrase(char)
+    helper = None
+    if helpers:
+        helper = (
+            helpers.get((char, word.get("grade", ""), word.get("meaning", "")))
+            or helpers.get((char, word.get("grade", ""), ""))
+            or helpers.get((char, "", ""))
+        )
+    bilingual_helper = bilingual_helper_for_word(char, word.get("grade", ""))
+    curated_helper = None if helper or bilingual_helper else curated_helper_for_word(char, word.get("grade", ""))
+    phrase = (
+        helper["phrase"] if helper
+        else bilingual_helper["word"] if bilingual_helper
+        else curated_helper["phrase"] if curated_helper
+        else choose_phrase(char)
+    )
+    lesson = lesson_number(word.get("meaning", ""))
+    sentence = (
+        helper["sentence"] if helper and helper.get("sentence")
+        else curated_helper["sentence"] if curated_helper and curated_helper.get("sentence")
+        else good_sentence(char, phrase, related_words, lesson)
+    )
 
     word["pinyin"] = pinyin
     word["phrase"] = phrase
     word["association"] = f"好词：{phrase}"
-    word["good_sentence"] = f"好句：{good_sentence(char, phrase)}"
+    word["good_sentence"] = f"好句：{sentence}" if sentence else ""
+    word["textbook_words"] = related_words or []
+    word["helper_source"] = "manual" if helper else "pdf" if bilingual_helper else "curated" if curated_helper else "auto"
+    word["helper_theme"] = curated_helper.get("theme", "") if curated_helper else ""
+    word["helper_english"] = bilingual_helper.get("english", "") if bilingual_helper else ""
+    word["helper_pdf_source"] = bilingual_helper.get("source_pdf", "") if bilingual_helper else ""
+    word["helper_pdf_page"] = bilingual_helper.get("page", "") if bilingual_helper else ""
     word["sound_url"] = f"https://translate.google.com/?sl=zh-CN&tl=en&text={quote(char)}&op=translate"
     return word
 
@@ -236,6 +575,8 @@ def init_db():
         cur.executescript(f.read())
 
     cur.execute("DELETE FROM words")
+    cur.execute("DELETE FROM learning_sources")
+    cur.execute("DELETE FROM word_helpers")
 
     csv_files = sorted(
         os.path.join(DATA_DIR, file_name)
@@ -246,6 +587,9 @@ def init_db():
     for csv_file in csv_files:
         print(f"Importing vocabulary from {os.path.basename(csv_file)}...")
         import_csv_file(conn, csv_file)
+
+    import_learning_sources(conn)
+    import_word_helpers(conn)
 
     conn.commit()
     conn.close()
@@ -270,7 +614,15 @@ def get_source():
 def get_grades():
     db = get_db()
     grades = db.execute(
-        "SELECT grade, COUNT(*) AS total FROM words GROUP BY grade ORDER BY CAST(grade AS INTEGER)"
+        """
+        SELECT grade, COUNT(*) AS total
+        FROM words
+        GROUP BY grade
+        ORDER BY
+          CASE WHEN grade GLOB '[0-9]*' THEN 0 ELSE 1 END,
+          CAST(grade AS INTEGER),
+          grade
+        """
     ).fetchall()
     return jsonify([dict(row) for row in grades])
 
@@ -282,7 +634,59 @@ def get_words():
         "SELECT char, pinyin, meaning, grade FROM words WHERE grade=? ORDER BY id",
         (grade,)
     ).fetchall()
-    return jsonify([enrich_word(w) for w in words])
+    helpers = word_helper_lookup(db, grade)
+    db.close()
+    return jsonify([
+        enrich_word(word, helpers, lesson_context(words, word))
+        for word in words
+    ])
+
+@app.route("/api/tts", methods=["GET"])
+def tts_audio():
+    text = request.args.get("text", "").strip()
+    if not text:
+        return jsonify({"error": "Missing text"}), 400
+
+    text = text[:180]
+    source_url = f"https://dict.youdao.com/dictvoice?audio={quote(text)}&le=zh"
+    try:
+        req = Request(source_url, headers={"User-Agent": "Mozilla/5.0"})
+        with urlopen(req, timeout=8, context=ssl._create_unverified_context()) as response:
+            audio = response.read()
+    except Exception as error:
+        return jsonify({"error": f"TTS fetch failed: {error}"}), 502
+
+    return Response(
+        audio,
+        mimetype="audio/mpeg",
+        headers={
+            "Cache-Control": "public, max-age=86400",
+            "Content-Disposition": "inline; filename=nihao-buddy-tts.mp3"
+        }
+    )
+
+@app.route("/api/dictation_words", methods=["GET"])
+def get_dictation_words():
+    grade = request.args.get("grade", "1")
+    seen = set()
+    entries = []
+
+    for entry in load_bilingual_wordlist():
+        if entry["grade"] != str(grade):
+            continue
+        word = entry["word"]
+        if word in seen:
+            continue
+        seen.add(word)
+        entries.append({
+            "word": word,
+            "english": entry["english"],
+            "grade": entry["grade"],
+            "source_pdf": entry["source_pdf"],
+            "page": entry["page"],
+        })
+
+    return jsonify(entries)
 
 @app.route("/api/add_word", methods=["POST"])
 def add_word():
@@ -295,6 +699,169 @@ def add_word():
     db.commit()
     return jsonify({"message": "✅ Word added successfully!"})
 
+@app.route("/api/import_words", methods=["POST"])
+def import_words():
+    data = request.json or {}
+    csv_text = (data.get("csvText") or "").strip()
+    fallback_grade = (data.get("grade") or "custom").strip()
+
+    if not csv_text:
+        return jsonify({"error": "Paste CSV data before importing."}), 400
+
+    reader = csv.DictReader(io.StringIO(csv_text))
+    if not reader.fieldnames:
+        return jsonify({"error": "CSV must include a header row."}), 400
+
+    rows_to_save = []
+    errors = []
+    for index, raw_row in enumerate(reader, start=2):
+        row = clean_import_row(raw_row, fallback_grade=fallback_grade)
+        if not row["char"]:
+            errors.append(f"Line {index}: missing Chinese character/word.")
+            continue
+        if not row["meaning"]:
+            errors.append(f"Line {index}: missing meaning.")
+            continue
+        rows_to_save.append(row)
+
+    if not rows_to_save:
+        return jsonify({
+            "error": "No valid rows found.",
+            "errors": errors
+        }), 400
+
+    db = get_db()
+    added = 0
+    skipped = 0
+    for row in rows_to_save:
+        cursor = db.execute(
+            """
+            INSERT OR IGNORE INTO words (char, pinyin, meaning, grade)
+            VALUES (?, ?, ?, ?)
+            """,
+            (row["char"], row["pinyin"], row["meaning"], row["grade"])
+        )
+        if cursor.rowcount:
+            added += 1
+        else:
+            skipped += 1
+    db.commit()
+    db.close()
+
+    append_custom_import(rows_to_save)
+
+    return jsonify({
+        "message": f"Imported {added} new words. {skipped} duplicate rows skipped.",
+        "added": added,
+        "skipped": skipped,
+        "saved_to": os.path.basename(CUSTOM_IMPORT_PATH),
+        "errors": errors[:10]
+    })
+
+@app.route("/api/learning_sources", methods=["GET"])
+def get_learning_sources():
+    grade = request.args.get("grade")
+    db = get_db()
+    if grade:
+        rows = db.execute(
+            """
+            SELECT * FROM learning_sources
+            WHERE grade=?
+            ORDER BY id DESC
+            LIMIT 80
+            """,
+            (grade,)
+        ).fetchall()
+    else:
+        rows = db.execute(
+            "SELECT * FROM learning_sources ORDER BY id DESC LIMIT 80"
+        ).fetchall()
+    db.close()
+    return jsonify([dict(row) for row in rows])
+
+@app.route("/api/learning_sources", methods=["POST"])
+def add_learning_source():
+    entry = clean_source_entry(request.json or {})
+    if not entry["content"]:
+        return jsonify({"error": "Enter a word, phrase, sentence, or paragraph first."}), 400
+
+    db = get_db()
+    added = save_source_entry(db, entry)
+    db.commit()
+    db.close()
+
+    if added:
+        append_learning_source(entry)
+
+    return jsonify({
+        "message": "Saved to Source Library." if added else "This source already exists.",
+        "added": bool(added),
+        "source": entry,
+        "also_added_to_word_bank": entry["content_type"] in {"word", "phrase"}
+    })
+
+@app.route("/api/word_helper", methods=["POST"])
+def add_word_helper():
+    helper = clean_word_helper(request.json or {})
+    if not helper["char"]:
+        return jsonify({"error": "Missing word or character."}), 400
+    if not helper["phrase"]:
+        return jsonify({"error": "Enter your own 好词 first."}), 400
+    if not helper_matches_word(helper):
+        return jsonify({"error": "好词/好句 must contain the target word or character."}), 400
+
+    db = get_db()
+    save_word_helper(db, helper)
+    db.commit()
+    db.close()
+    append_word_helper(helper)
+
+    return jsonify({
+        "message": "Saved your 好词/好句 override.",
+        "helper": helper
+    })
+
+@app.route("/api/import_word_helpers", methods=["POST"])
+def import_word_helper_rows():
+    data = request.json or {}
+    csv_text = (data.get("csvText") or "").strip()
+    fallback_grade = (data.get("grade") or "").strip()
+    if not csv_text:
+        return jsonify({"error": "Paste a CSV with char, phrase, and optional sentence columns."}), 400
+
+    reader = csv.DictReader(io.StringIO(csv_text))
+    if not reader.fieldnames:
+        return jsonify({"error": "CSV needs a header row."}), 400
+
+    imported = []
+    skipped = []
+    for line_number, row in enumerate(reader, start=2):
+        helper = clean_word_helper_row(row, fallback_grade)
+        if not helper["char"] or not helper["phrase"]:
+            skipped.append({"line": line_number, "reason": "Missing char or phrase."})
+            continue
+        if not helper_matches_word(helper):
+            skipped.append({"line": line_number, "reason": "Phrase or sentence does not contain the target word."})
+            continue
+        imported.append(helper)
+
+    if not imported:
+        return jsonify({"error": "No valid helper rows found.", "skipped": skipped}), 400
+
+    db = get_db()
+    for helper in imported:
+        save_word_helper(db, helper)
+        append_word_helper(helper)
+    db.commit()
+    db.close()
+
+    return jsonify({
+        "message": f"Imported {len(imported)} 好词/好句 entries.",
+        "imported": len(imported),
+        "skipped": skipped
+    })
+
 if __name__ == "__main__":
     init_db()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    auto_start = os.environ.get("NIHAO_BUDDY_AUTO_START") == "1"
+    app.run(host="0.0.0.0", port=5000, debug=not auto_start)

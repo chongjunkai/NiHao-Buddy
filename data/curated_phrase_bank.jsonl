@@ -1,0 +1,59 @@
+{"targets":"衣服穿整洁","phrase":"衣着整洁","sentence":"上学时，我们要保持衣着整洁，给人留下好印象。","min_grade":1,"max_grade":3,"theme":"daily life","source":"curated from free common primary composition themes"}
+{"targets":"鱼游水清河","phrase":"自由自在","sentence":"小鱼在清澈的河水里自由自在地游来游去。","min_grade":1,"max_grade":3,"theme":"nature","source":"curated from free common primary composition themes"}
+{"targets":"雨水花草","phrase":"雨后放晴","sentence":"雨后放晴，花草显得更加精神。","min_grade":1,"max_grade":4,"theme":"weather","source":"curated from free common primary composition themes"}
+{"targets":"一心意专注","phrase":"一心一意","sentence":"做功课时，我一心一意地完成每一道题。","min_grade":1,"max_grade":4,"theme":"study attitude","source":"curated from free common primary composition themes"}
+{"targets":"五颜色彩花园","phrase":"五颜六色","sentence":"花园里开满了五颜六色的花，十分美丽。","min_grade":1,"max_grade":3,"theme":"description","source":"curated from free common primary composition themes"}
+{"targets":"耳听老师课","phrase":"专心聆听","sentence":"上课时，我们要专心聆听老师的讲解。","min_grade":1,"max_grade":4,"theme":"school","source":"curated from free common primary composition themes"}
+{"targets":"口说请教表达","phrase":"开口请教","sentence":"遇到不懂的问题时，我会主动开口请教老师。","min_grade":1,"max_grade":4,"theme":"learning habit","source":"curated from free common primary composition themes"}
+{"targets":"人助帮同学","phrase":"助人为乐","sentence":"他常常帮助同学，是一个助人为乐的孩子。","min_grade":1,"max_grade":5,"theme":"kindness","source":"curated from free common primary composition themes"}
+{"targets":"书读知识","phrase":"增长知识","sentence":"多读好书可以增长知识，也能提高表达能力。","min_grade":1,"max_grade":5,"theme":"study","source":"curated from free common primary composition themes"}
+{"targets":"山高风景","phrase":"风景优美","sentence":"山上的风景优美，让人看了心情舒畅。","min_grade":1,"max_grade":4,"theme":"nature","source":"curated from free common primary composition themes"}
+{"targets":"草地跑玩","phrase":"绿草如茵","sentence":"孩子们在绿草如茵的草地上快乐地奔跑。","min_grade":2,"max_grade":5,"theme":"description","source":"curated from free common primary composition themes"}
+{"targets":"阳光晴天","phrase":"阳光明媚","sentence":"阳光明媚的早晨，我背着书包走向学校。","min_grade":2,"max_grade":5,"theme":"weather opening","source":"curated from free common primary composition themes"}
+{"targets":"老师耐心教","phrase":"耐心指导","sentence":"老师耐心指导我们，让我渐渐明白了学习方法。","min_grade":2,"max_grade":6,"theme":"school","source":"curated from free common primary composition themes"}
+{"targets":"安全路马车","phrase":"注意安全","sentence":"过马路时，我们一定要注意安全，不可贪快。","min_grade":2,"max_grade":5,"theme":"safety","source":"curated from free common primary composition themes"}
+{"targets":"亲切温暖","phrase":"亲切关怀","sentence":"老师的亲切关怀让我感到十分温暖。","min_grade":2,"max_grade":6,"theme":"feelings","source":"curated from free common primary composition themes"}
+{"targets":"帮助帮忙同学","phrase":"帮助同学","sentence":"看到同学遇到困难，我主动帮助同学。","min_grade":2,"max_grade":6,"theme":"kindness","source":"curated from free common primary composition themes"}
+{"targets":"幸福家人","phrase":"幸福美满","sentence":"一家人围坐在一起吃饭，是一种简单的幸福美满。","min_grade":2,"max_grade":5,"theme":"family","source":"curated from free common primary composition themes"}
+{"targets":"朋友友爱","phrase":"朋友之间","sentence":"朋友之间应该互相关心，也要互相鼓励。","min_grade":2,"max_grade":6,"theme":"friendship","source":"curated from free common primary composition themes"}
+{"targets":"希望愿望梦","phrase":"满怀希望","sentence":"虽然过程辛苦，我仍然满怀希望地继续努力。","min_grade":3,"max_grade":6,"theme":"motivation","source":"curated from free common primary composition themes"}
+{"targets":"军勇敢保护","phrase":"勇敢无畏","sentence":"面对困难时，我们要学习勇敢无畏的精神。","min_grade":3,"max_grade":6,"theme":"character","source":"curated from free common primary composition themes"}
+{"targets":"练习朗读读","phrase":"反复练习","sentence":"只要反复练习，朗读时就会更加流利。","min_grade":3,"max_grade":6,"theme":"study habit","source":"curated from free common primary composition themes"}
+{"targets":"努力努进步","phrase":"努力进步","sentence":"只要不断努力进步，就能慢慢看见成果。","min_grade":3,"max_grade":6,"theme":"perseverance","source":"curated from free common primary composition themes"}
+{"targets":"诚实信任","phrase":"诚实守信","sentence":"诚实守信的人，才能赢得别人的信任。","min_grade":3,"max_grade":6,"theme":"values","source":"curated from free common primary composition themes"}
+{"targets":"信心鼓励","phrase":"充满信心","sentence":"得到老师的鼓励后，我充满信心地走上台。","min_grade":3,"max_grade":6,"theme":"confidence","source":"curated from free common primary composition themes"}
+{"targets":"健康身体","phrase":"保持健康","sentence":"均衡饮食和适量运动能帮助我们保持健康。","min_grade":3,"max_grade":6,"theme":"health","source":"curated from free common primary composition themes"}
+{"targets":"解决问题解","phrase":"解决问题","sentence":"遇到问题时，我们应该冷静思考，努力解决问题。","min_grade":4,"max_grade":6,"theme":"problem solving","source":"curated from free common primary composition themes"}
+{"targets":"预习复习学习","phrase":"认真预习","sentence":"上课前认真预习，学习时就会更有信心。","min_grade":4,"max_grade":6,"theme":"study habit","source":"curated from free common primary composition themes"}
+{"targets":"继续坚持","phrase":"继续前进","sentence":"即使遇到挫折，我们也要整理心情，继续前进。","min_grade":4,"max_grade":6,"theme":"resilience","source":"curated from free common primary composition themes"}
+{"targets":"精彩表演掌声","phrase":"精彩表演","sentence":"精彩表演结束后，礼堂里响起热烈的掌声。","min_grade":4,"max_grade":6,"theme":"school event","source":"curated from free common primary composition themes"}
+{"targets":"交换意见想法","phrase":"交换意见","sentence":"小组成员交换意见后，想出了更好的办法。","min_grade":4,"max_grade":6,"theme":"collaboration","source":"curated from free common primary composition themes"}
+{"targets":"掌声鼓励","phrase":"热烈掌声","sentence":"听到台下的热烈掌声，我紧张的心慢慢平静下来。","min_grade":4,"max_grade":6,"theme":"performance","source":"curated from free common primary composition themes"}
+{"targets":"后悔悔改","phrase":"后悔不已","sentence":"他因为没有认真复习而后悔不已。","min_grade":4,"max_grade":6,"theme":"reflection","source":"curated from free common primary composition themes"}
+{"targets":"尊敬敬老","phrase":"尊敬长辈","sentence":"我们要尊敬长辈，说话做事都要有礼貌。","min_grade":4,"max_grade":6,"theme":"values","source":"curated from free common primary composition themes"}
+{"targets":"建议议论","phrase":"提出建议","sentence":"他勇敢地提出建议，希望班级活动办得更好。","min_grade":4,"max_grade":6,"theme":"communication","source":"curated from free common primary composition themes"}
+{"targets":"负责责任责","phrase":"认真负责","sentence":"班长做事认真负责，大家都很信任他。","min_grade":5,"max_grade":6,"theme":"responsibility","source":"curated from free common primary composition themes"}
+{"targets":"探索探险","phrase":"探索奥秘","sentence":"孩子们喜欢探索大自然的奥秘。","min_grade":5,"max_grade":6,"theme":"curiosity","source":"curated from free common primary composition themes"}
+{"targets":"独立思考","phrase":"独立思考","sentence":"学会独立思考，是成长过程中重要的一步。","min_grade":5,"max_grade":6,"theme":"growth","source":"curated from free common primary composition themes"}
+{"targets":"珍贵珍惜贵","phrase":"珍惜时间","sentence":"时间十分珍贵，我们要珍惜时间，不要虚度光阴。","min_grade":5,"max_grade":6,"theme":"time","source":"curated from free common primary composition themes"}
+{"targets":"竞争竞赛","phrase":"良性竞争","sentence":"良性竞争能激励我们更加努力。","min_grade":5,"max_grade":6,"theme":"school","source":"curated from free common primary composition themes"}
+{"targets":"合作协助","phrase":"互相合作","sentence":"大家互相合作，终于顺利完成了任务。","min_grade":5,"max_grade":6,"theme":"teamwork","source":"curated from free common primary composition themes"}
+{"targets":"正确确实","phrase":"正确方法","sentence":"掌握正确方法后，学习效率会提高许多。","min_grade":5,"max_grade":6,"theme":"study skill","source":"curated from free common primary composition themes"}
+{"targets":"烦恼恼怒","phrase":"排解烦恼","sentence":"把心事说出来，有助于排解烦恼。","min_grade":5,"max_grade":6,"theme":"emotions","source":"curated from free common primary composition themes"}
+{"targets":"劳动劳苦","phrase":"辛勤劳动","sentence":"经过辛勤劳动，我们更懂得珍惜成果。","min_grade":5,"max_grade":6,"theme":"values","source":"curated from free common primary composition themes"}
+{"targets":"克服困难","phrase":"克服困难","sentence":"他努力克服困难，终于完成了这项挑战。","min_grade":5,"max_grade":6,"theme":"perseverance","source":"curated from free common primary composition themes"}
+{"targets":"锻炼身体","phrase":"锻炼身体","sentence":"每天坚持锻炼身体，能让我们更有精神。","min_grade":5,"max_grade":6,"theme":"health","source":"curated from free common primary composition themes"}
+{"targets":"严格严谨","phrase":"严格要求","sentence":"老师严格要求我们，是希望大家养成良好的学习习惯。","min_grade":5,"max_grade":6,"theme":"school","source":"curated from free common primary composition themes"}
+{"targets":"勤劳勤奋","phrase":"勤奋好学","sentence":"勤奋好学的人，总能在学习中不断进步。","min_grade":5,"max_grade":6,"theme":"study attitude","source":"curated from free common primary composition themes"}
+{"targets":"懒惰惰性","phrase":"克服惰性","sentence":"我们要克服惰性，坚持每天复习。","min_grade":5,"max_grade":6,"theme":"self discipline","source":"curated from free common primary composition themes"}
+{"targets":"计划划分计","phrase":"制定计划","sentence":"做事前先制定计划，过程会更有条理。","min_grade":5,"max_grade":6,"theme":"planning","source":"curated from free common primary composition themes"}
+{"targets":"压力压迫","phrase":"面对压力","sentence":"面对压力时，我们要保持冷静，寻找解决办法。","min_grade":5,"max_grade":6,"theme":"resilience","source":"curated from free common primary composition themes"}
+{"targets":"梦想梦","phrase":"实现梦想","sentence":"只要坚持努力，梦想就会离我们越来越近。","min_grade":5,"max_grade":6,"theme":"motivation","source":"curated from free common primary composition themes"}
+{"targets":"勇气勇敢","phrase":"鼓起勇气","sentence":"我鼓起勇气向老师承认错误。","min_grade":4,"max_grade":6,"theme":"courage","source":"curated from free common primary composition themes"}
+{"targets":"吸引引起","phrase":"深深吸引","sentence":"这个有趣的故事深深吸引了同学们。","min_grade":4,"max_grade":6,"theme":"description","source":"curated from free common primary composition themes"}
+{"targets":"颜色颜面","phrase":"色彩鲜艳","sentence":"墙上的图画色彩鲜艳，吸引了大家的目光。","min_grade":4,"max_grade":6,"theme":"description","source":"curated from free common primary composition themes"}
+{"targets":"时间光阴日子","phrase":"光阴似箭","sentence":"光阴似箭，转眼间我们已经升上六年级。","min_grade":5,"max_grade":6,"theme":"time opening","source":"curated from free common primary composition themes"}
+{"targets":"心情紧张急","phrase":"心急如焚","sentence":"发现作业不见了，我急得心急如焚。","min_grade":5,"max_grade":6,"theme":"emotion","source":"curated from free common primary composition themes"}
+{"targets":"明白悟懂","phrase":"恍然大悟","sentence":"听了老师的解释后，我才恍然大悟。","min_grade":5,"max_grade":6,"theme":"realisation","source":"curated from free common primary composition themes"}
+{"targets":"惭愧羞愧错","phrase":"惭愧不已","sentence":"想到自己的错误，我惭愧不已，决定马上改正。","min_grade":5,"max_grade":6,"theme":"reflection","source":"curated from free common primary composition themes"}
+{"targets":"记住铭记心","phrase":"铭记在心","sentence":"老师的教诲让我铭记在心。","min_grade":5,"max_grade":6,"theme":"ending","source":"curated from free common primary composition themes"}
