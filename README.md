@@ -139,7 +139,7 @@ I added a Podcast Room because language learning starts with listening. Before s
 
 The Compo Listening Room now focuses on useful PSLE-style language rather than random stories. It creates listening practice using good phrases, good sentences, oral answer patterns, and short composition-style passages connected to common school themes such as helping others, facing difficulties, cherishing time, and healthy living. Students can listen first, then reuse the phrases in oral practice or composition writing.
 
-![NiHao Buddy Podcast Room screenshot](assets/screenshots/nihao-buddy-podcast-room.jpg)
+![NiHao Buddy bamboo-themed Compo Listening Room screenshot](assets/screenshots/nihao-buddy-bamboo-listening-room.png)
 
 To avoid making the project too large, the app does not store audio files locally. It uses browser speech for the built-in listening feature and includes links to Singapore-focused PSLE oral and composition resources for extra practice:
 
