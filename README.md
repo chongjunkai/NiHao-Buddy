@@ -94,7 +94,7 @@ The current prototype includes:
 - A cleaner bamboo-themed interface with Student Mode, Parent/Teacher Mode, quest-style navigation, XP progress cards, badges, and a Panda Buddy mascot
 
 
-<img width="1276" height="754" alt="Screenshot 2026-05-31 at 11 22 09 PM" src="https://github.com/user-attachments/assets/33b65279-6991-48d0-8933-7fe376411fe3" />
+![NiHao Buddy bamboo-themed student home screen](assets/screenshots/nihao-buddy-bamboo-home.png)
 
 
 This working prototype helped me turn my original idea into something that can be tested, improved, and explained. It shows how I used coding and AI-assisted development to solve a real learning problem from my own life.
