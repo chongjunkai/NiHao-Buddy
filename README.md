@@ -6,6 +6,10 @@
 
 NiHao Buddy is an experimental Chinese learning application inspired by my own learning journey.
 
+Live GitHub Pages demo: [https://chongjunkai.github.io/NiHao-Buddy/](https://chongjunkai.github.io/NiHao-Buddy/)
+
+The GitHub Pages version runs as a static demo using the vocabulary files in this repository. The local Flask version unlocks the full database, import tools, and backend audio route.
+
 I enjoy technology, coding, and building things, but I found Chinese more challenging than some of my other subjects. My mum noticed this and encouraged me to think about how technology could make Chinese learning more effective and enjoyable.
 
 Together, we brainstormed ideas for a Chinese learning app that could help not only me, but also my younger sister and other students who may struggle with Chinese.

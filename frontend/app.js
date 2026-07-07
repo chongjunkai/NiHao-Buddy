@@ -3,6 +3,8 @@ const CURRENT_USER_KEY = "nihaoBuddyCurrentUser";
 const UI_LANGUAGE_KEY = "nihaoBuddyUiLanguage";
 const APP_MODE_KEY = "nihaoBuddyAppMode";
 const MAX_VISIBLE_CARDS = 120;
+const STATIC_GRADES = ["1", "2", "3", "4", "5", "6"];
+const IS_GITHUB_PAGES = window.location.hostname.endsWith("github.io");
 if ("scrollRestoration" in history) {
   history.scrollRestoration = "manual";
 }
@@ -710,6 +712,146 @@ function setText(selector, text) {
   if (element) element.textContent = text;
 }
 
+function staticDataUrl(fileName) {
+  return new URL(`../data/${fileName}`, window.location.href).href;
+}
+
+async function fetchText(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Could not load ${url}`);
+  return response.text();
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let quoted = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+    if (char === '"' && quoted && next === '"') {
+      cell += '"';
+      index += 1;
+    } else if (char === '"') {
+      quoted = !quoted;
+    } else if (char === "," && !quoted) {
+      row.push(cell);
+      cell = "";
+    } else if ((char === "\n" || char === "\r") && !quoted) {
+      if (char === "\r" && next === "\n") index += 1;
+      row.push(cell);
+      if (row.some(value => value.trim())) rows.push(row);
+      row = [];
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+  if (cell || row.length) {
+    row.push(cell);
+    if (row.some(value => value.trim())) rows.push(row);
+  }
+  if (!rows.length) return [];
+
+  const headers = rows[0].map(header => header.trim());
+  return rows.slice(1).map(values => {
+    const item = {};
+    headers.forEach((header, index) => {
+      item[header] = (values[index] || "").trim();
+    });
+    return item;
+  });
+}
+
+function parseJsonLines(text) {
+  return text
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean)
+    .map(line => JSON.parse(line));
+}
+
+async function loadStaticHelpers() {
+  const [helperText, phraseText] = await Promise.all([
+    fetchText(staticDataUrl("word_helpers.jsonl")).catch(() => ""),
+    fetchText(staticDataUrl("curated_phrase_bank.jsonl")).catch(() => "")
+  ]);
+  return {
+    helpers: helperText ? parseJsonLines(helperText) : [],
+    phraseBank: phraseText ? parseJsonLines(phraseText) : []
+  };
+}
+
+function applyStaticHelper(word, helpers, phraseBank) {
+  const direct = helpers.find(item =>
+    String(item.grade || "") === String(word.grade || state.grade) && item.char === word.char
+  );
+  if (direct) {
+    return {
+      ...word,
+      meaning: direct.meaning || word.meaning,
+      phrase: direct.phrase || word.phrase || word.char,
+      association: direct.phrase ? `好词：${direct.phrase}` : word.association,
+      good_sentence: direct.sentence ? `好句：${direct.sentence}` : word.good_sentence,
+      helper_english: direct.english || "",
+      helper_source: "static"
+    };
+  }
+
+  const gradeNumber = Number(word.grade || state.grade);
+  const bank = phraseBank.find(item => {
+    const minGrade = Number(item.min_grade || 1);
+    const maxGrade = Number(item.max_grade || 6);
+    return gradeNumber >= minGrade && gradeNumber <= maxGrade && String(item.targets || "").includes(word.char);
+  });
+  if (bank) {
+    return {
+      ...word,
+      phrase: bank.phrase || word.phrase || word.char,
+      association: bank.phrase ? `好词：${bank.phrase}` : word.association,
+      good_sentence: bank.sentence ? `好句：${bank.sentence}` : word.good_sentence,
+      helper_source: "static"
+    };
+  }
+
+  return {
+    ...word,
+    phrase: word.phrase || word.char,
+    association: word.association || "",
+    good_sentence: word.good_sentence || ""
+  };
+}
+
+async function loadStaticWords(grade) {
+  const [csvText, helperData] = await Promise.all([
+    fetchText(staticDataUrl(`grade${grade}.csv`)),
+    loadStaticHelpers()
+  ]);
+  return parseCsv(csvText).map(item => applyStaticHelper({
+    char: item.char || item.word || "",
+    pinyin: item.pinyin || "",
+    meaning: item.meaning || "",
+    grade: String(item.grade || grade),
+    phrase: item.phrase || "",
+    association: item.association || "",
+    good_sentence: item.good_sentence || ""
+  }, helperData.helpers, helperData.phraseBank)).filter(word => word.char);
+}
+
+async function loadStaticGrades() {
+  const counts = await Promise.all(STATIC_GRADES.map(async grade => {
+    try {
+      const text = await fetchText(staticDataUrl(`grade${grade}.csv`));
+      return { grade, total: parseCsv(text).length };
+    } catch {
+      return { grade, total: 0 };
+    }
+  }));
+  return counts.filter(item => item.total > 0);
+}
+
 function applyMode() {
   document.body.dataset.appMode = state.appMode;
   document.querySelectorAll(".mode-button").forEach(button => {
@@ -1407,12 +1549,14 @@ function speak(text, options = {}) {
   audio.onerror = () => {
     if (state.activeAudio === audio) state.activeAudio = null;
     console.warn("Audio failed to load:", content);
+    if (IS_GITHUB_PAGES) speakWithBrowserVoice(content, options);
   };
   audio.src = dictionaryAudioUrl(content);
   audio.currentTime = 0;
   audio.play().catch(error => {
     console.warn("Audio play failed", error);
     if (state.activeAudio === audio) state.activeAudio = null;
+    if (IS_GITHUB_PAGES) speakWithBrowserVoice(content, options);
   });
 }
 
@@ -3026,6 +3170,12 @@ function renderAll() {
 }
 
 async function loadSourceStatus() {
+  if (IS_GITHUB_PAGES) {
+    els.sourceStatus.textContent = "GitHub Pages static demo: core vocabulary works; local Flask unlocks import and database tools.";
+    els.sourceStatus.title = "Static GitHub Pages mode";
+    return;
+  }
+
   try {
     const response = await fetch("/api/source");
     const source = await response.json();
@@ -3037,8 +3187,15 @@ async function loadSourceStatus() {
 }
 
 async function loadGrades() {
-  const response = await fetch("/api/grades");
-  const grades = await response.json();
+  let grades = [];
+  try {
+    const response = await fetch("/api/grades");
+    if (!response.ok) throw new Error("API unavailable");
+    grades = await response.json();
+  } catch (error) {
+    console.warn("Using static grade data", error);
+    grades = await loadStaticGrades();
+  }
 
   els.gradeSelect.innerHTML = "";
   grades.forEach(item => {
@@ -3069,10 +3226,15 @@ async function loadWords() {
   els.quizQuestion.textContent = uiText("loadingQuiz");
   els.quizOptions.innerHTML = "";
 
-  const response = await fetch(`/api/words?grade=${gradeToLoad}`);
-  if (loadToken !== state.loadToken || gradeToLoad !== state.grade) return;
-
-  state.words = await response.json();
+  try {
+    const response = await fetch(`/api/words?grade=${gradeToLoad}`);
+    if (!response.ok) throw new Error("API unavailable");
+    if (loadToken !== state.loadToken || gradeToLoad !== state.grade) return;
+    state.words = await response.json();
+  } catch (error) {
+    console.warn("Using static word data", error);
+    state.words = await loadStaticWords(gradeToLoad);
+  }
   state.dictationWords = buildDictationWords(state.words);
   if (loadToken !== state.loadToken || gradeToLoad !== state.grade) return;
 
