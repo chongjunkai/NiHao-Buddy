@@ -338,7 +338,7 @@ const UI_TEXT = {
     mission2: "Mission 2", mission2Text: "Fix mistakes so weak words come back for review.",
     mission3: "Mission 3", mission3Text: "Build a streak, win badges, and try speed mode.",
     mission4: "Mission 4", mission4Text: "Listen to vocabulary stories for 磨耳朵 practice.",
-    claimChest: "Claim Chest", enableSound: "Enable Sound", soundOn: "Sound On", soundBlocked: "Tap Sound Again", prev: "Prev", next: "Next",
+    claimChest: "Claim Chest", enableSound: "Play Sound", soundOn: "Sound On", soundBlocked: "Use Audio Player Below", prev: "Prev", next: "Next",
     pauseAuto: "Pause Auto Play", resumeAuto: "Resume Auto Play", random: "Random", highFrequency: "High Frequency",
     albumHint: "Click Enable Sound once. Auto-play can then read the word, 好词, and 好句.",
     listen: "Listen", audio: "Audio", save: "Save", saved: "Saved", know: "Know", quiz: "Quiz", editHaoci: "Edit 好词", myHaoci: "My 好词",
@@ -424,7 +424,7 @@ const UI_TEXT = {
     titleChampion: "Chinese Champion", titleQuestMaster: "Quest Master", titlePhraseExplorer: "Phrase Explorer", titleWordRookie: "Word Rookie",
     loginReward: "Daily Login +5 XP", finishQuestFirst: "Finish quest first", chestAlreadyClaimed: "Chest already claimed", chestReward: "CHEST +30 XP",
     profileMeta: user => `${user.description} · P${user.defaultGrade} default`, notLoggedIn: "Not logged in", chooseProfile: "Choose a student profile",
-    testPasswords: "Test passwords: enzo123, enya123, or guest123", wrongPassword: "Wrong password. Try enzo123, enya123, or guest123.", enterPasswordFor: name => `Enter the password for ${name}.`,
+    testPasswords: "Tap a profile to start. Passwords still work: enzo123, enya123, or guest123.", wrongPassword: "Wrong password. Try enzo123, enya123, or guest123.", enterPasswordFor: name => `Starting ${name}...`,
     loadingWords: grade => `Loading P${grade} words...`, loadingWordQuest: "Loading this learner's word quest...",
     resetConfirm: learner => `Reset all local NiHao Buddy progress for ${learner}?`, thisLearner: "this learner",
     importSavedTo: (message, path) => `${message} Saved to ${path}.`, sourceStatus: (name, active) => `${name}: ${active}`
@@ -447,7 +447,7 @@ const UI_TEXT = {
     mission2: "任务 2", mission2Text: "订正错题，让薄弱词语回来复习。",
     mission3: "任务 3", mission3Text: "保持连续学习，赢取徽章并挑战速度。",
     mission4: "任务 4", mission4Text: "聆听词语内容，进行磨耳朵练习。",
-    claimChest: "领取宝箱", enableSound: "开启声音", soundOn: "声音已开", soundBlocked: "再点一次声音", prev: "上一张", next: "下一张",
+    claimChest: "领取宝箱", enableSound: "播放声音", soundOn: "声音已开", soundBlocked: "请用下方播放器", prev: "上一张", next: "下一张",
     pauseAuto: "暂停自动播放", resumeAuto: "继续自动播放", random: "随机播放", highFrequency: "高频优先",
     albumHint: "先点击开启声音。自动播放会朗读词语、好词和好句。",
     listen: "朗读", audio: "外部音频", save: "收藏", saved: "已收藏", know: "会了", quiz: "测验", editHaoci: "编辑好词", myHaoci: "我的好词",
@@ -533,7 +533,7 @@ const UI_TEXT = {
     titleChampion: "华文小冠军", titleQuestMaster: "任务高手", titlePhraseExplorer: "好词探索者", titleWordRookie: "词语新手",
     loginReward: "每日登录 +5 经验值", finishQuestFirst: "请先完成今天的任务", chestAlreadyClaimed: "今天已经领取宝箱", chestReward: "宝箱 +30 经验值",
     profileMeta: user => `${user.description} · 默认P${user.defaultGrade}`, notLoggedIn: "尚未登录", chooseProfile: "请选择学习者",
-    testPasswords: "测试密码：enzo123、enya123 或 guest123", wrongPassword: "密码不正确，请试 enzo123、enya123 或 guest123。", enterPasswordFor: name => `请输入 ${name} 的密码。`,
+    testPasswords: "点击头像即可开始。也可以输入密码：enzo123、enya123 或 guest123", wrongPassword: "密码不正确，请试 enzo123、enya123 或 guest123。", enterPasswordFor: name => `正在进入 ${name}……`,
     loadingWords: grade => `正在载入 P${grade} 词语……`, loadingWordQuest: "正在载入这个学习者的词语任务……",
     resetConfirm: learner => `确定要重置 ${learner} 的本地学习进度吗？`, thisLearner: "这位学习者",
     importSavedTo: (message, path) => `${message} 已保存到 ${path}。`, sourceStatus: (name, active) => `${name}：${active}`
@@ -1122,6 +1122,18 @@ function loginSelectedProfile() {
   activateProfile(user.username);
 }
 
+function chooseProfile(username) {
+  const user = USERS[username];
+  if (!user) return;
+
+  state.selectedLoginUser = username;
+  document.querySelectorAll(".profile-choice").forEach(choice => {
+    choice.classList.toggle("active", choice.dataset.loginUser === username);
+  });
+  els.loginFeedback.textContent = uiValue("enterPasswordFor", user.displayName);
+  activateProfile(username);
+}
+
 function shuffle(items) {
   return [...items].sort(() => Math.random() - 0.5);
 }
@@ -1504,6 +1516,9 @@ function chooseChineseVoice() {
 
 function dictionaryAudioUrl(text) {
   const content = String(text || "").trim().slice(0, 180);
+  if (IS_GITHUB_PAGES) {
+    return `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(content)}&le=zh`;
+  }
   return `/api/tts?text=${encodeURIComponent(content)}`;
 }
 
@@ -1520,12 +1535,21 @@ function getAudioPlayer() {
   if (!audio) {
     audio = document.createElement("audio");
     audio.id = "nihao-tts-audio";
+    audio.className = "tts-player";
+    audio.controls = true;
+    audio.hidden = true;
     audio.preload = "auto";
     audio.setAttribute("playsinline", "");
-    audio.style.display = "none";
     document.body.appendChild(audio);
   }
   return audio;
+}
+
+function showAudioPlayer(audio) {
+  audio.hidden = false;
+  audio.controls = true;
+  markAlbumSoundBlocked();
+  audio.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function speakWithBrowserVoice(text, options = {}) {
@@ -1541,6 +1565,7 @@ function speakWithBrowserVoice(text, options = {}) {
   utterance.pitch = options.pitch || 1.18;
   utterance.rate = options.rate || 0.9;
   speechSynthesis.cancel();
+  speechSynthesis.resume();
   speechSynthesis.speak(utterance);
   return true;
 }
@@ -1552,7 +1577,7 @@ function speak(text, options = {}) {
   stopActiveAudio();
   if ("speechSynthesis" in window) speechSynthesis.cancel();
 
-  if (IS_GITHUB_PAGES) {
+  if (IS_GITHUB_PAGES && "speechSynthesis" in window) {
     return Promise.resolve(speakWithBrowserVoice(content, options));
   }
 
@@ -1564,12 +1589,23 @@ function speak(text, options = {}) {
   audio.onerror = () => {
     if (state.activeAudio === audio) state.activeAudio = null;
     console.warn("Audio failed to load:", content);
+    showAudioPlayer(audio);
   };
   audio.src = dictionaryAudioUrl(content);
   audio.currentTime = 0;
-  return audio.play().then(() => true).catch(error => {
+  audio.load();
+  return audio.play().then(() => {
+    setTimeout(() => {
+      if (state.activeAudio === audio && audio.paused && audio.currentTime === 0) {
+        showAudioPlayer(audio);
+      }
+    }, 700);
+    return true;
+  }).catch(error => {
     console.warn("Audio play failed", error);
     if (state.activeAudio === audio) state.activeAudio = null;
+    showAudioPlayer(audio);
+    if ("speechSynthesis" in window) return speakWithBrowserVoice(content, options);
     return false;
   });
 }
@@ -3280,13 +3316,7 @@ function resetProgress() {
 function bindEvents() {
   document.querySelectorAll(".profile-choice").forEach(button => {
     button.addEventListener("click", () => {
-      state.selectedLoginUser = button.dataset.loginUser;
-      document.querySelectorAll(".profile-choice").forEach(choice => {
-        choice.classList.toggle("active", choice === button);
-      });
-      els.passwordInput.value = "";
-      els.loginFeedback.textContent = uiValue("enterPasswordFor", USERS[state.selectedLoginUser].displayName);
-      els.passwordInput.focus();
+      chooseProfile(button.dataset.loginUser);
     });
   });
 
@@ -3451,13 +3481,7 @@ async function init() {
   await loadSourceStatus();
   await loadGrades();
   await renderSourceLibrary();
-
-  const savedUsername = localStorage.getItem(CURRENT_USER_KEY);
-  if (savedUsername && USERS[savedUsername]) {
-    await activateProfile(savedUsername, { keepCurrentGrade: false });
-  } else {
-    showLogin();
-  }
+  showLogin();
 }
 
 init();

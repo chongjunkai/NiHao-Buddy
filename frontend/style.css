@@ -2280,3 +2280,18 @@ body[data-app-mode="parent"] [data-mode="student"] {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+.tts-player {
+  background: #fffaf0;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  bottom: 18px;
+  box-shadow: 0 14px 30px rgba(35, 52, 62, 0.18);
+  left: 50%;
+  max-width: calc(100vw - 32px);
+  padding: 8px;
+  position: fixed;
+  transform: translateX(-50%);
+  width: min(420px, calc(100vw - 32px));
+  z-index: 30;
+}
