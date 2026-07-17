@@ -3151,8 +3151,14 @@ async function saveManualSource() {
 async function renderSourceLibrary() {
   if (!els.sourceLibraryList) return;
 
+  if (IS_GITHUB_PAGES) {
+    els.sourceLibraryList.innerHTML = `<p class="empty-state">Source Library is available in the local Flask app. The GitHub Pages demo keeps the student learning features active.</p>`;
+    return;
+  }
+
   try {
     const response = await fetch("/api/learning_sources");
+    if (!response.ok) throw new Error("Source library API unavailable");
     const sources = await response.json();
     if (!sources.length) {
       els.sourceLibraryList.innerHTML = `<p class="empty-state">${uiText("sourceEmpty")}</p>`;
