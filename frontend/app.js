@@ -326,7 +326,7 @@ const UI_TEXT = {
     dailyQuest: "Daily Quest", xpRewards: "XP Rewards", wordArena: "Word Arena", enterWordAlbum: "Open Word Album",
     readyQuest: "Ready for a word quest?", xpPoints: "XP points", dayStreak: "day streak", wordsCleared: "words cleared",
     studentMode: "Student Mode", parentMode: "Parent/Teacher",
-    home: "Home", questMap: "Quest Map", chooseZone: "Choose your training zone", activeLearner: "Active Learner", switchUser: "Switch User",
+    home: "Home", questMap: "Quest Map", chooseZone: "Choose your training zone", activeLearner: "Active Learner", switchUser: "Choose / Switch User",
     level: "Level", lesson: "Lesson", search: "Search", searchPlaceholder: "Character, pinyin, phrase",
     bossChallenge: "Boss Challenge", wordBase: "Word Album", quizArena: "Quiz Arena", reviewQuest: "Review Quest",
     dictation: "Dictation", backpack: "Backpack", speedRun: "Speed Run", podcastRoom: "Podcast Room", psleRoom: "PSLE Room", dataLab: "Data Lab", dashboard: "Dashboard", badges: "Badges",
@@ -338,7 +338,7 @@ const UI_TEXT = {
     mission2: "Mission 2", mission2Text: "Fix mistakes so weak words come back for review.",
     mission3: "Mission 3", mission3Text: "Build a streak, win badges, and try speed mode.",
     mission4: "Mission 4", mission4Text: "Listen to vocabulary stories for 磨耳朵 practice.",
-    claimChest: "Claim Chest", enableSound: "Enable Sound", soundOn: "Sound On", prev: "Prev", next: "Next",
+    claimChest: "Claim Chest", enableSound: "Enable Sound", soundOn: "Sound On", soundBlocked: "Tap Sound Again", prev: "Prev", next: "Next",
     pauseAuto: "Pause Auto Play", resumeAuto: "Resume Auto Play", random: "Random", highFrequency: "High Frequency",
     albumHint: "Click Enable Sound once. Auto-play can then read the word, 好词, and 好句.",
     listen: "Listen", audio: "Audio", save: "Save", saved: "Saved", know: "Know", quiz: "Quiz", editHaoci: "Edit 好词", myHaoci: "My 好词",
@@ -435,7 +435,7 @@ const UI_TEXT = {
     dailyQuest: "每日任务", xpRewards: "经验奖励", wordArena: "词语训练场", enterWordAlbum: "进入词语相册",
     readyQuest: "准备开始词语任务了吗？", xpPoints: "经验值", dayStreak: "连续天数", wordsCleared: "已掌握词语",
     studentMode: "学生模式", parentMode: "家长/老师模式",
-    home: "首页", questMap: "任务地图", chooseZone: "选择学习区域", activeLearner: "当前学习者", switchUser: "切换用户",
+    home: "首页", questMap: "任务地图", chooseZone: "选择学习区域", activeLearner: "当前学习者", switchUser: "选择 / 切换用户",
     level: "年级", lesson: "课次", search: "搜索", searchPlaceholder: "汉字、拼音、好词",
     bossChallenge: "终极挑战", wordBase: "词语相册", quizArena: "测验训练", reviewQuest: "复习任务",
     dictation: "听写练习", backpack: "我的收藏", speedRun: "限时挑战", podcastRoom: "磨耳朵", psleRoom: "PSLE练习", dataLab: "资料库", dashboard: "学习报告", badges: "徽章",
@@ -447,7 +447,7 @@ const UI_TEXT = {
     mission2: "任务 2", mission2Text: "订正错题，让薄弱词语回来复习。",
     mission3: "任务 3", mission3Text: "保持连续学习，赢取徽章并挑战速度。",
     mission4: "任务 4", mission4Text: "聆听词语内容，进行磨耳朵练习。",
-    claimChest: "领取宝箱", enableSound: "开启声音", soundOn: "声音已开", prev: "上一张", next: "下一张",
+    claimChest: "领取宝箱", enableSound: "开启声音", soundOn: "声音已开", soundBlocked: "再点一次声音", prev: "上一张", next: "下一张",
     pauseAuto: "暂停自动播放", resumeAuto: "继续自动播放", random: "随机播放", highFrequency: "高频优先",
     albumHint: "先点击开启声音。自动播放会朗读词语、好词和好句。",
     listen: "朗读", audio: "外部音频", save: "收藏", saved: "已收藏", know: "会了", quiz: "测验", editHaoci: "编辑好词", myHaoci: "我的好词",
@@ -1510,6 +1510,8 @@ function dictionaryAudioUrl(text) {
 function stopActiveAudio() {
   if (!state.activeAudio) return;
   state.activeAudio.pause();
+  state.activeAudio.removeAttribute("src");
+  state.activeAudio.load();
   state.activeAudio = null;
 }
 
@@ -1527,10 +1529,10 @@ function getAudioPlayer() {
 }
 
 function speakWithBrowserVoice(text, options = {}) {
-  if (!("speechSynthesis" in window)) return;
+  if (!("speechSynthesis" in window)) return false;
 
   const content = String(text || "").trim();
-  if (!content) return;
+  if (!content) return false;
 
   const voice = chooseChineseVoice();
   const utterance = new SpeechSynthesisUtterance(content);
@@ -1540,14 +1542,19 @@ function speakWithBrowserVoice(text, options = {}) {
   utterance.rate = options.rate || 0.9;
   speechSynthesis.cancel();
   speechSynthesis.speak(utterance);
+  return true;
 }
 
 function speak(text, options = {}) {
   const content = String(text || "").trim();
-  if (!content) return;
+  if (!content) return Promise.resolve(false);
 
   stopActiveAudio();
   if ("speechSynthesis" in window) speechSynthesis.cancel();
+
+  if (IS_GITHUB_PAGES) {
+    return Promise.resolve(speakWithBrowserVoice(content, options));
+  }
 
   const audio = getAudioPlayer();
   state.activeAudio = audio;
@@ -1557,14 +1564,13 @@ function speak(text, options = {}) {
   audio.onerror = () => {
     if (state.activeAudio === audio) state.activeAudio = null;
     console.warn("Audio failed to load:", content);
-    if (IS_GITHUB_PAGES) speakWithBrowserVoice(content, options);
   };
   audio.src = dictionaryAudioUrl(content);
   audio.currentTime = 0;
-  audio.play().catch(error => {
+  return audio.play().then(() => true).catch(error => {
     console.warn("Audio play failed", error);
     if (state.activeAudio === audio) state.activeAudio = null;
-    if (IS_GITHUB_PAGES) speakWithBrowserVoice(content, options);
+    return false;
   });
 }
 
@@ -1933,22 +1939,34 @@ function scheduleNextAlbumCard(word) {
   state.albumTimer = setTimeout(() => moveAlbum(1, { auto: true }), albumCardDelayMs(word));
 }
 
+function setAlbumSoundButton(enabled, labelKey = null) {
+  if (!els.albumSoundButton) return;
+  els.albumSoundButton.textContent = uiText(labelKey || (enabled ? "soundOn" : "enableSound"));
+  els.albumSoundButton.classList.toggle("saved", enabled);
+}
+
+function markAlbumSoundBlocked() {
+  state.albumSoundEnabled = false;
+  setAlbumSoundButton(false, "soundBlocked");
+}
+
 function speakAlbumWord(word, options = {}) {
-  if ((!state.albumPlaying && !options.force) || !word || !state.albumSoundEnabled) return;
+  if ((!state.albumPlaying && !options.force) || !word || !state.albumSoundEnabled) {
+    return Promise.resolve(false);
+  }
 
   clearAlbumSpeechTimers();
-  speak(albumQuickSpeechText(word), { pitch: 1.12, rate: 0.82 });
+  return speak(albumQuickSpeechText(word), { pitch: 1.12, rate: 0.82 });
 }
 
 function speakWordNow(word) {
   if (!word) return;
   stopSpeaking();
   state.albumSoundEnabled = true;
-  if (els.albumSoundButton) {
-    els.albumSoundButton.textContent = uiText("soundOn");
-    els.albumSoundButton.classList.add("saved");
-  }
-  speak(albumQuickSpeechText(word), { pitch: 1.12, rate: 0.82 });
+  setAlbumSoundButton(true);
+  speak(albumQuickSpeechText(word), { pitch: 1.12, rate: 0.82 }).then(success => {
+    if (!success) markAlbumSoundBlocked();
+  });
 }
 
 function setAlbumPlaying(playing) {
@@ -1970,16 +1988,16 @@ function enableAlbumSound() {
   if (state.albumSoundEnabled) {
     state.albumSoundEnabled = false;
     stopSpeaking();
-    els.albumSoundButton.textContent = uiText("enableSound");
-    els.albumSoundButton.classList.remove("saved");
+    setAlbumSoundButton(false);
     return;
   }
 
   state.albumSoundEnabled = true;
-  els.albumSoundButton.textContent = uiText("soundOn");
-  els.albumSoundButton.classList.add("saved");
+  setAlbumSoundButton(true);
   const currentWord = state.filteredWords[state.albumIndex];
-  speakAlbumWord(currentWord, { force: true });
+  speakAlbumWord(currentWord, { force: true }).then(success => {
+    if (!success) markAlbumSoundBlocked();
+  });
   if (state.albumPlaying) scheduleNextAlbumCard(currentWord);
 }
 
@@ -1990,10 +2008,7 @@ function moveAlbum(direction, options = {}) {
   if (options.speakNow) stopSpeaking();
   if (options.speakNow) {
     state.albumSoundEnabled = true;
-    if (els.albumSoundButton) {
-      els.albumSoundButton.textContent = uiText("soundOn");
-      els.albumSoundButton.classList.add("saved");
-    }
+    setAlbumSoundButton(true);
   }
   if (typeof options.keepPlaying === "boolean") state.albumPlaying = options.keepPlaying;
   state.albumIndex = (state.albumIndex + direction + state.filteredWords.length) % state.filteredWords.length;
@@ -3351,8 +3366,7 @@ function bindEvents() {
     const shouldPlay = !state.albumPlaying;
     if (shouldPlay) {
       state.albumSoundEnabled = true;
-      els.albumSoundButton.textContent = uiText("soundOn");
-      els.albumSoundButton.classList.add("saved");
+      setAlbumSoundButton(true);
     }
     setAlbumPlaying(shouldPlay);
   });
