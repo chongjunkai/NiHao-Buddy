@@ -292,6 +292,14 @@ const USERS = {
     age: 6,
     defaultGrade: "1",
     description: "Age 6, P1 starter path"
+  },
+  guest: {
+    username: "guest",
+    password: "guest123",
+    displayName: "Guest",
+    age: 10,
+    defaultGrade: "3",
+    description: "Guest demo path"
   }
 };
 
@@ -416,7 +424,7 @@ const UI_TEXT = {
     titleChampion: "Chinese Champion", titleQuestMaster: "Quest Master", titlePhraseExplorer: "Phrase Explorer", titleWordRookie: "Word Rookie",
     loginReward: "Daily Login +5 XP", finishQuestFirst: "Finish quest first", chestAlreadyClaimed: "Chest already claimed", chestReward: "CHEST +30 XP",
     profileMeta: user => `${user.description} · P${user.defaultGrade} default`, notLoggedIn: "Not logged in", chooseProfile: "Choose a student profile",
-    testPasswords: "Test passwords: enzo123 or enya123", wrongPassword: "Wrong password. Try enzo123 or enya123.", enterPasswordFor: name => `Enter the password for ${name}.`,
+    testPasswords: "Test passwords: enzo123, enya123, or guest123", wrongPassword: "Wrong password. Try enzo123, enya123, or guest123.", enterPasswordFor: name => `Enter the password for ${name}.`,
     loadingWords: grade => `Loading P${grade} words...`, loadingWordQuest: "Loading this learner's word quest...",
     resetConfirm: learner => `Reset all local NiHao Buddy progress for ${learner}?`, thisLearner: "this learner",
     importSavedTo: (message, path) => `${message} Saved to ${path}.`, sourceStatus: (name, active) => `${name}: ${active}`
@@ -525,7 +533,7 @@ const UI_TEXT = {
     titleChampion: "华文小冠军", titleQuestMaster: "任务高手", titlePhraseExplorer: "好词探索者", titleWordRookie: "词语新手",
     loginReward: "每日登录 +5 经验值", finishQuestFirst: "请先完成今天的任务", chestAlreadyClaimed: "今天已经领取宝箱", chestReward: "宝箱 +30 经验值",
     profileMeta: user => `${user.description} · 默认P${user.defaultGrade}`, notLoggedIn: "尚未登录", chooseProfile: "请选择学习者",
-    testPasswords: "测试密码：enzo123 或 enya123", wrongPassword: "密码不正确，请试 enzo123 或 enya123。", enterPasswordFor: name => `请输入 ${name} 的密码。`,
+    testPasswords: "测试密码：enzo123、enya123 或 guest123", wrongPassword: "密码不正确，请试 enzo123、enya123 或 guest123。", enterPasswordFor: name => `请输入 ${name} 的密码。`,
     loadingWords: grade => `正在载入 P${grade} 词语……`, loadingWordQuest: "正在载入这个学习者的词语任务……",
     resetConfirm: learner => `确定要重置 ${learner} 的本地学习进度吗？`, thisLearner: "这位学习者",
     importSavedTo: (message, path) => `${message} 已保存到 ${path}。`, sourceStatus: (name, active) => `${name}：${active}`

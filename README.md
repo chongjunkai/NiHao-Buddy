@@ -113,6 +113,7 @@ The app now includes a simple local student login so different learners can keep
 | --- | --- | --- | --- |
 | Enzo | `enzo` | `enzo123` | P6 vocabulary |
 | Enya | `enya` | `enya123` | P1 vocabulary, age 6 starter path |
+| Guest | `guest` | `guest123` | P3 vocabulary demo path |
 
 This helps show how NiHao Buddy can become more personalised for different students in the same family or classroom.
 
