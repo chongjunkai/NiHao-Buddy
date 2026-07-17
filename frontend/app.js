@@ -1577,10 +1577,6 @@ function speak(text, options = {}) {
   stopActiveAudio();
   if ("speechSynthesis" in window) speechSynthesis.cancel();
 
-  if (IS_GITHUB_PAGES && "speechSynthesis" in window) {
-    return Promise.resolve(speakWithBrowserVoice(content, options));
-  }
-
   const audio = getAudioPlayer();
   state.activeAudio = audio;
   audio.onended = () => {
