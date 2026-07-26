@@ -1545,10 +1545,10 @@ function getAudioPlayer() {
   return audio;
 }
 
-function showAudioPlayer(audio) {
+function showAudioPlayer(audio, options = {}) {
   audio.hidden = false;
   audio.controls = true;
-  markAlbumSoundBlocked();
+  if (options.blocked) markAlbumSoundBlocked();
   audio.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
@@ -1581,26 +1581,31 @@ function speak(text, options = {}) {
   state.activeAudio = audio;
   audio.onended = () => {
     if (state.activeAudio === audio) state.activeAudio = null;
+    if (state.albumSoundEnabled) {
+      state.albumSoundEnabled = false;
+      setAlbumSoundButton(false);
+    }
   };
   audio.onerror = () => {
     if (state.activeAudio === audio) state.activeAudio = null;
     console.warn("Audio failed to load:", content);
-    showAudioPlayer(audio);
+    showAudioPlayer(audio, { blocked: true });
   };
   audio.src = dictionaryAudioUrl(content);
   audio.currentTime = 0;
   audio.load();
+  showAudioPlayer(audio);
   return audio.play().then(() => {
     setTimeout(() => {
       if (state.activeAudio === audio && audio.paused && audio.currentTime === 0) {
-        showAudioPlayer(audio);
+        showAudioPlayer(audio, { blocked: true });
       }
     }, 700);
     return true;
   }).catch(error => {
     console.warn("Audio play failed", error);
     if (state.activeAudio === audio) state.activeAudio = null;
-    showAudioPlayer(audio);
+    showAudioPlayer(audio, { blocked: true });
     if ("speechSynthesis" in window) return speakWithBrowserVoice(content, options);
     return false;
   });
@@ -1950,7 +1955,10 @@ function albumSpeechText(word) {
 function albumQuickSpeechText(word) {
   if (!word) return "";
   const phrase = picturePhraseForWord(word);
-  return phrase || word.char;
+  const sentence = stripLabel(word.good_sentence || "", "好句：").trim();
+  const core = phrase || word.char;
+  const repeatedCore = [core, core, core].join("。");
+  return sentence ? `${repeatedCore}。${sentence}` : repeatedCore;
 }
 
 function albumCardDelayMs(word) {
