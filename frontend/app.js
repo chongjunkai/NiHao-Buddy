@@ -1517,7 +1517,7 @@ function chooseChineseVoice() {
 function dictionaryAudioUrl(text) {
   const content = String(text || "").trim().slice(0, 180);
   if (IS_GITHUB_PAGES) {
-    return `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(content)}&le=zh`;
+    return `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q=${encodeURIComponent(content)}`;
   }
   return `/api/tts?text=${encodeURIComponent(content)}`;
 }
