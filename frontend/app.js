@@ -1517,7 +1517,8 @@ function chooseChineseVoice() {
 function dictionaryAudioUrl(text) {
   const content = String(text || "").trim().slice(0, 180);
   if (IS_GITHUB_PAGES) {
-    return `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q=${encodeURIComponent(content)}`;
+    const fileName = `${encodeURIComponent(content).replace(/%/g, "_")}.mp3`;
+    return new URL(`../assets/audio/tts/${fileName}`, window.location.href).href;
   }
   return `/api/tts?text=${encodeURIComponent(content)}`;
 }
@@ -1578,8 +1579,19 @@ function speak(text, options = {}) {
   if ("speechSynthesis" in window) speechSynthesis.cancel();
 
   const audio = getAudioPlayer();
+  let playsLeft = Math.max(1, Number(options.repeat || 1));
   state.activeAudio = audio;
   audio.onended = () => {
+    playsLeft -= 1;
+    if (playsLeft > 0) {
+      audio.currentTime = 0;
+      audio.play().catch(error => {
+        console.warn("Audio replay failed", error);
+        if (state.activeAudio === audio) state.activeAudio = null;
+        showAudioPlayer(audio, { blocked: true });
+      });
+      return;
+    }
     if (state.activeAudio === audio) state.activeAudio = null;
     if (state.albumSoundEnabled) {
       state.albumSoundEnabled = false;
@@ -1955,10 +1967,7 @@ function albumSpeechText(word) {
 function albumQuickSpeechText(word) {
   if (!word) return "";
   const phrase = picturePhraseForWord(word);
-  const sentence = stripLabel(word.good_sentence || "", "好句：").trim();
-  const core = phrase || word.char;
-  const repeatedCore = [core, core, core].join("。");
-  return sentence ? `${repeatedCore}。${sentence}` : repeatedCore;
+  return phrase || word.char;
 }
 
 function albumCardDelayMs(word) {
@@ -1996,7 +2005,8 @@ function speakAlbumWord(word, options = {}) {
   }
 
   clearAlbumSpeechTimers();
-  return speak(albumQuickSpeechText(word), { pitch: 1.12, rate: 0.82 });
+  const text = albumQuickSpeechText(word);
+  return speak(text, { pitch: 1.12, rate: 0.82, repeat: text.length <= 1 ? 3 : 1 });
 }
 
 function speakWordNow(word) {
@@ -2004,7 +2014,8 @@ function speakWordNow(word) {
   stopSpeaking();
   state.albumSoundEnabled = true;
   setAlbumSoundButton(true);
-  speak(albumQuickSpeechText(word), { pitch: 1.12, rate: 0.82 }).then(success => {
+  const text = albumQuickSpeechText(word);
+  speak(text, { pitch: 1.12, rate: 0.82, repeat: text.length <= 1 ? 3 : 1 }).then(success => {
     if (!success) markAlbumSoundBlocked();
   });
 }
